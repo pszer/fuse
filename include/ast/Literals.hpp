@@ -17,6 +17,14 @@ namespace Fuse {
 		std::shared_ptr<Fuse::Object> Eval();
 	private:
 		std::string String;
-		TypeAST type = NODE_NUMBER;
+		TypeAST type = NODE_STRING;
+	};
+	
+	class BoolAST : ExprAST {
+	public:
+		std::shared_ptr<Fuse::Object> Eval();
+	private:
+		bool Bool;
+		TypeAST type = NODE_BOOL;
 	};
 };
