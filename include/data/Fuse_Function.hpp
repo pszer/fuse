@@ -7,6 +7,7 @@ namespace Fuse {
 	class Function : Object {
 	public:
 		Function();
+		Function(std::unique_ptr<FunctionAST> _func): func(std::move(_func)) { ; }
 		
 		Function* Clone(); // returns nullptr at the moment
 		

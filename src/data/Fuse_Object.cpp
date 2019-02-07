@@ -2,8 +2,6 @@
 
 using namespace Fuse;
 
-Object::Object() { ; }
-
 Object* Fuse::Clone(Object* o) {
 	switch (o->GetType()) {
 	case TYPE_NUMBER:
@@ -42,10 +40,12 @@ std::string Fuse::Object::ToString() {
 }
 
 // null
-Null::Null() { ; }
 Null* Null::Clone() {
 	auto n = new Null();
 	*n = *this;
 	return n;
 }
-std::string Null::ToString() { return "null"; }
+
+std::string Null::ToString() {
+	return "null";
+}

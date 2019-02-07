@@ -2,6 +2,9 @@
 
 #include <vector>
 
+// For data/Fuse_Function.hpp
+namespace Fuse { class FunctionAST; };
+
 #include "data/Fuse_Object.hpp"
 
 /*
@@ -103,7 +106,6 @@ namespace Fuse {
 		// return a shared ptr of the object
 		virtual std::shared_ptr<Fuse::Object> Eval() = 0;
 		
-		virtual ~StatAST();
 		TypeAST GetType();
 	private:
 		TypeAST type = NODE_NULL;
@@ -123,8 +125,7 @@ namespace Fuse {
 		// Eval evaluates the expression, all expressions evaluate to something
 		// so this function should never return nullptr.
 		virtual std::shared_ptr<Fuse::Object> Eval() = 0;
-		
-		virtual ~ExprAST();
+
 		TypeAST GetType();
 	private:
 		TypeAST type = NODE_NULL;

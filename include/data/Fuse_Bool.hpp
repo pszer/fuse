@@ -7,6 +7,7 @@ namespace Fuse {
 	class Bool : Object {
 	public:
 		Bool();
+		Bool(bool _val): val(_val) { ; }
 		
 		Bool* Clone();
 		bool& Value();

@@ -16,8 +16,6 @@ namespace Fuse {
 
 	class Object {
 	public:
-		Object();
-		
 		Type GetType(); // returns type
 		virtual Object* Clone();   // returns nullptr
 		
@@ -29,7 +27,6 @@ namespace Fuse {
 	
 	class Null : Object {
 	public:
-		Null();
 		Null* Clone();
 		std::string ToString();
 	private:

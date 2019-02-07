@@ -7,6 +7,7 @@ namespace Fuse {
 	class String : Object {
 	public:
 		String();
+		String(const std::string& _str): str(_str) { ; }
 		
 		String* Clone();
 		
