@@ -66,7 +66,7 @@ postunop ::= ‘++’ | ‘--’
 namespace Fuse {
 	
 	enum TypeAST : char {
-		NODE_BLOCK, NODE_NULL,
+		NODE_BLOCK, NODE_RETURN, NODE_NULL,
 		
 		NODE_OBJECT, NODE_VARIABLE,
 		

@@ -9,11 +9,11 @@ LDIR =../lib
 LIBS=-lm -lpthread
 
 _DEPS = data/Fuse_Object.hpp data/Fuse_Table.hpp data/Fuse_Number.hpp data/Fuse_String.hpp data/Fuse_Bool.hpp data/Fuse_Function.hpp Fuse_Core.hpp Lexer.hpp Parser.hpp AST.hpp \
-ast/Base.hpp ast/Literals.hpp
+ast/Base.hpp ast/Literals.hpp ast/Block.hpp
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
 _OBJ = main.o data/Fuse_Object.o data/Fuse_Table.o data/Fuse_Number.o data/Fuse_String.o data/Fuse_Bool.o data/Fuse_Function.o Fuse_Core.o Lexer.o Parser.o \
-ast/Base.o ast/Literals.o
+ast/Base.o ast/Literals.o ast/Block.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 OUTPUT = fuse-test

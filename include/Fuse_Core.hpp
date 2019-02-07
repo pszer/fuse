@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Lexer.hpp"
+#include "Parser.hpp"
 
 namespace Fuse {
 	
@@ -8,7 +9,8 @@ namespace Fuse {
 	public:
 		Core();
 		
-		struct Lexer Lexer;
+		Parser _Parser;
+		Lexer _Lexer;
 	private:
 	};
 	

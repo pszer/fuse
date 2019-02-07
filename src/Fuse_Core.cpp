@@ -2,4 +2,4 @@
 
 using namespace Fuse;
 
-Core::Core() { ; }
+Core::Core(): _Parser( Parser(&_Lexer)) { ; }
