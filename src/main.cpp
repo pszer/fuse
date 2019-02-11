@@ -1,7 +1,7 @@
 #include "Fuse_Core.hpp"
 
 int main(int argc, char** argv) {
-	std::stringstream str("print(\"Hello World!\");");
+	std::stringstream str("function foo(x,y) { return x + y + x; }");
 	
 	Fuse::Core core;
 	core._Lexer.SetReader(str);

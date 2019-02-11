@@ -8,3 +8,4 @@
 #include "ast/FuncDef.hpp"
 #include "ast/Object.hpp"
 #include "ast/Variable.hpp"
+#include "ast/BinaryExpr.hpp"

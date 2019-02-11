@@ -45,7 +45,7 @@ namespace Fuse {
 		OP_COMP_EQUAL, OP_COMP_LESS, OP_COMP_GREATER, OP_COMP_LESS_EQUAL, OP_COMP_GREATER_EQUAL,
 		OP_AND, OP_OR,
 		
-		OP_INC, OP_DEC, OP_NEGATE = OP_SUB, OP_NOT
+		OP_INC, OP_DEC, OP_NEGATE, OP_NOT
 	};
 	const int OP_COUNT = 17;
 	// e.g. op_str[OP_AND] == "&&"

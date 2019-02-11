@@ -1,7 +1,13 @@
 #pragma once
 
 #include "Lexer.hpp"
+#include "data/Fuse_Object.hpp"
+#include "AST.hpp"
 #include "Parser.hpp"
+
+#include <vector>
+#include <memory>
+#include <map>
 
 using VariableScopes = std::vector< std::map<std::string, std::shared_ptr<Fuse::Object>> >;
 using Scope = std::map<std::string, std::shared_ptr<Fuse::Object> >;

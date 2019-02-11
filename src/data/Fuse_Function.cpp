@@ -9,13 +9,9 @@ Function* Fuse::Function::Clone() {
 }
 
 std::string Fuse::Function::ToString() {
-	return "function address: " + std::to_string((int)Func->GetBody());
+	return "function";
 }
 
 const std::vector<std::string>& Fuse::Function::GetArgs() {
 	return Func->GetArgs();
-}
-
-const StatAST * Fuse::Function::GetBody() {
-	return Func->GetBody();
 }

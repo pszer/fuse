@@ -12,7 +12,6 @@ namespace Fuse {
 		Function* Clone();
 		
 		const std::vector<std::string>& GetArgs();
-		const StatAST * GetBody();
 		
 		std::string ToString();
 	private:

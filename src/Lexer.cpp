@@ -112,10 +112,11 @@ int Lexer::Next() {
 	// Numbers
 	// Check if '-' is a minus sign (therefore part of a number)
 	// '-' is guaranteed to be part of a number if the next char is a number (or a .)
-	// and the previous token is not a number/postfix unary operator (++ and --)
+	// and the previous token is not a number/identifier/close bracket/postfix unary operator (++ and --)
 	if (C == '-') {
 		if ( (std::isdigit(stream.peek()) || (stream.peek() == '.') ) &&
-		     ((LastToken != TOK_NUMBER) && (LastToken != OP_INC) && (LastToken != OP_DEC)) )
+		     ((LastToken != TOK_NUMBER) && (LastToken != TOK_IDENTIFIER) && (LastToken != ')')
+		       && (LastToken != ']') && (LastToken != OP_INC) && (LastToken != OP_DEC)) )
 		{
 			return TokenizeNumber();
 		}
@@ -210,6 +211,17 @@ int Lexer::TokenizeOperator() {
 	while (OperatorChar(C)) {
 		temp += C;
 		NextChar();
+	}
+	
+	if (temp == "-") {
+		if ((LastToken == TOK_NUMBER) || (LastToken == TOK_IDENTIFIER) || (LastToken == ')')
+		       || (LastToken == ']') || (LastToken == OP_INC) || (LastToken == OP_DEC))
+		{
+			Operator = OP_SUB;
+		} else {
+			Operator = OP_NEGATE;    
+		}
+		return TOK_OPERATOR;
 	}
 	
 	for (int i = 0; i < OP_COUNT; ++i) {

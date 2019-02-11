@@ -1,4 +1,5 @@
 #include "Parser.hpp"
+#include "Fuse_Core.hpp"
 
 using namespace Fuse;
 
@@ -16,8 +17,23 @@ void Parser::LogWarning(const std::string& str) {
 	std::cerr << "\033[1;33mWarning\033[0m:: " << str << std::endl;
 }
 
-Parser_State Parser::Parse() {
-	return PARSER_SUCCESS;
+std::unique_ptr<StatAST> Parser::Parse() {
+	return ParseStatement();
+}
+
+int Parser::GetPrecedence(OPERATORS op) {
+	if (op < 0 || op > OP_COUNT) return -1;
+	else return BinopPrecedence[op];
+}
+
+int Parser::GetTokenPrecedence() {
+	int TokPrec = GetPrecedence(lex->Operator);
+	if (TokPrec <= 0) return -1;
+	return TokPrec;
+}
+
+bool Parser::IsPrefixOp(OPERATORS op) {
+	if (op == OP_INC || op == OP_DEC || op == OP_NEGATE || op == OP_NOT) return true;
 }
 
 int Parser::GetNextToken() { return CurrTok = lex->GetNextToken(); }
@@ -27,6 +43,8 @@ std::unique_ptr<StatAST> Parser::ParseStatement() {
 	switch (GetCurrentToken()) {
 	case TOK_FUNCTION:
 		return ParseFuncDef();
+	case TOK_RETURN:
+		return ParseReturn();
 	case '{':
 		return ParseBlock();
 	default:
@@ -126,15 +144,69 @@ std::unique_ptr<StatAST> Parser::ParseBlock() {
 
 std::unique_ptr<StatAST> Parser::ParseReturn() {
 	GetNextToken(); // eat 'return' keyword
-	return std::move( std::make_unique<ReturnAST>( Parser::ParseExpression() ) );
+	auto Expr = ParseExpression();
+	return std::move( std::make_unique<ReturnAST>( Expr ) );
 }
 		
-std::unique_ptr<ExprAST> ParseExprPrimary() {
+std::unique_ptr<ExprAST> Parser::ParseExprPrimary() {
+	std::unique_ptr<ExprAST> expr;
 	
+	switch (GetCurrentToken()) {
+	case TOK_NUMBER:
+		expr = ParseNumber();
+		break;
+	case TOK_STRING:
+		expr = ParseString();
+		break;
+	case TOK_TRUE:
+	case TOK_FALSE:
+		expr = ParseBoolean();
+		break;
+	case TOK_OPERATOR:
+		if (IsPrefixOp(lex->Operator)) {
+			expr = ParsePreUnopExpr();
+		}
+		break;
+	}
 }
 		
 std::unique_ptr<ExprAST> Parser::ParseExpression() {
 	auto LHS = ParseExprPrimary();
+	if (!LHS) return nullptr;
+	
+	return ParseBinopRHS(0, std::move(LHS));
+}
+		
+std::unique_ptr<ExprAST> Parser::ParseBinopRHS(int ExprPrec, std::unique_ptr<ExprAST> LHS) {
+	while (1) {
+		int TokPrec = GetTokenPrecedence();
+		
+		if (TokPrec < ExprPrec || (GetCurrentToken() == ')') || (GetCurrentToken() == '}') || (GetCurrentToken() == ']'))
+			return std::move(LHS);
+			
+		OPERATORS Binop = lex->Operator;
+		GetNextToken(); // eat binop
+		
+		auto RHS = ParseExprPrimary();
+		if (RHS) return nullptr;
+		
+		int NextPrec = GetTokenPrecedence();
+		
+		if (TokPrec < NextPrec) {
+			RHS = ParseBinopRHS(TokPrec + 1, std::move(RHS));
+			if (!RHS) return nullptr;
+		}
+		
+		LHS = std::make_unique<BinaryExprAST>(Binop, std::move(LHS), std::move(RHS));
+	}
+}
+
+std::unique_ptr<ExprAST> ParsePreUnopExpr() {
+	
+}
+
+std::unique_ptr<ExprAST> ParsePostUnopExpr() {
+	
 }
 		
 std::unique_ptr<ExprAST> Parser::ParseNumber() {
