@@ -5,17 +5,17 @@ using namespace Fuse;
 Object* Fuse::Clone(Object* o) {
 	switch (o->GetType()) {
 	case TYPE_NUMBER:
-		return (Object*) (Number*)(o)->Clone();
+		return (Object*) (o)->Clone();
 	case TYPE_STRING:
-		return (Object*) (String*)(o)->Clone();
+		return (Object*)(o)->Clone();
 	case TYPE_BOOL:
-		return (Object*) (Bool*)(o)->Clone();
+		return (Object*) (o)->Clone();
 	case TYPE_NULL:
-		return (Object*) (Null*)(o)->Clone();
+		return (Object*) (o)->Clone();
 	case TYPE_TABLE:
-		return (Object*) (Table*)(o)->Clone();
+		return (Object*) (o)->Clone();
 	case TYPE_FUNCTION:
-		return (Object*) (Function*)(o)->Clone();
+		return (Object*) (o)->Clone();
 	case TYPE_OBJECT:
 		return o->Clone();
 	default:

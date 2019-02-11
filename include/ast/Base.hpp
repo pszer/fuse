@@ -130,40 +130,18 @@ namespace Fuse {
 	private:
 		TypeAST type = NODE_NULL;
 	};
-	
-	/*
-	PrototypeAST is the class that holds function prototype information, as in
-	the functions name (or no name if it is anonymous) and arguments/parameters with their names.
-	*/
-	class PrototypeAST {
-	public:
-		PrototypeAST(const std::string& _name, const std::vector<std::string>& _args):
-			Name(_name), Args(_args) { ; }
-	
-		const std::string& GetName();
-		const std::vector<std::string>& GetArgs();
-	private:
-		std::string Name;
-		std::vector<std::string> Args;
-	};
-	
-	/*
-	FunctionAST is the class that represents a function object. It has a PrototypeAST that holds
-	information about the function and the StatAST of the function body.
-	
-	FunctionAST's can be found stored in the global functions in Fuse_Core or encapsulated
-	in a Fuse::Function data object.
-	*/
+		
 	class FunctionAST {
 	public:
-		FunctionAST(PrototypeAST& _proto, std::unique_ptr<StatAST> _body):
-			Proto(std::move(_proto)), Body(std::move(_body)) { ; }
-		
-		const std::string& GetName();
+		FunctionAST(const std::vector<std::string>& _args, std::unique_ptr<StatAST> _body):
+		  Args(_args), Body(std::move(_body)) { ; }
+
 		const std::vector<std::string>& GetArgs();
+		const StatAST * GetBody();
+		
+		std::shared_ptr<Fuse::Object> Call();
 	private:
-		PrototypeAST Proto;
+		std::vector<std::string> Args;
 		std::unique_ptr<StatAST> Body;
 	};
-	
 }

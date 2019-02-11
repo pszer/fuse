@@ -11,7 +11,8 @@ namespace Fuse {
 		TYPE_STRING ,
 		TYPE_BOOL ,
 		TYPE_TABLE ,
-		TYPE_FUNCTION 
+		TYPE_FUNCTION ,
+		TYPE_UNINITIALIZED
 	};
 
 	class Object {

@@ -161,6 +161,8 @@ int Lexer::TokenizeKeywordId() {
 	// Check if keyword
 	if      (IdName == "if") 	return TOK_IF;
 	else if (IdName == "else") 	return TOK_ELSE;
+	else if (IdName == "true")	return TOK_TRUE;
+	else if (IdName == "false")	return TOK_FALSE;
 	else if (IdName == "function") 	return TOK_FUNCTION;
 	else if (IdName == "return") 	return TOK_RETURN;
 	else if (IdName == "for") 	return TOK_FOR;

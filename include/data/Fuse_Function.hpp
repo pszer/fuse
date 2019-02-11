@@ -6,18 +6,18 @@ namespace Fuse {
 	
 	class Function : Object {
 	public:
-		Function();
-		Function(std::unique_ptr<FunctionAST> _func): func(std::move(_func)) { ; }
+		Function() { ; }
+		Function(FunctionAST* _func): Func(_func) { ; }
 		
-		Function* Clone(); // returns nullptr at the moment
+		Function* Clone();
 		
-		const std::string& GetName();
 		const std::vector<std::string>& GetArgs();
+		const StatAST * GetBody();
 		
 		std::string ToString();
 	private:
 		Type type = TYPE_FUNCTION;
-		std::unique_ptr<FunctionAST> func;
+		FunctionAST * Func = nullptr;
 	};
 	
 };

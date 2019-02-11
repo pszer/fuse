@@ -10,18 +10,15 @@ TypeAST Fuse::ExprAST::GetType() {
 	return type;
 }
 
-const std::string& Fuse::PrototypeAST::GetName() {
-	return Name;
-}
 
-const std::vector<std::string>& Fuse::PrototypeAST::GetArgs() {
+const std::vector<std::string>& FunctionAST::GetArgs() {
 	return Args;
 }
 
-const std::string& Fuse::FunctionAST::GetName() {
-	return Proto.GetName();
+const StatAST * FunctionAST::GetBody() {
+	return Body.get();
 }
 
-const std::vector<std::string>& Fuse::FunctionAST::GetArgs() {
-	return Proto.GetArgs();
+std::shared_ptr<Fuse::Object> FunctionAST::Call() {
+	std::cout << "Function at address : " << (std::size_t)Body.get() << " was called" << std::endl;
 }
