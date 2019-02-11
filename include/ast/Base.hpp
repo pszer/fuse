@@ -107,7 +107,7 @@ namespace Fuse {
 		virtual std::shared_ptr<Fuse::Object> Eval() = 0;
 		
 		TypeAST GetType();
-	private:
+	protected:
 		TypeAST type = NODE_NULL;
 	};
 	
@@ -127,7 +127,7 @@ namespace Fuse {
 		virtual std::shared_ptr<Fuse::Object> Eval() = 0;
 
 		TypeAST GetType();
-	private:
+	protected:
 		TypeAST type = NODE_NULL;
 	};
 		

@@ -18,10 +18,7 @@ namespace Fuse {
 		std::shared_ptr<Fuse::Object>* GetVariable(const std::string& var_name);
 		// Sets variable 'var_name' to an object, if variable doesn't exist returns enum ERROR otherwise SUCCESS
 		VAR_SET_STATE SetVariable(const std::string& var_name, std::shared_ptr<Fuse::Object> obj);
-		
-		std::vector< std::unique_ptr<FunctionAST> > Functions;
-		// Add a new function
-		FunctionAST* EmplaceFunction(const std::vector<std::string>& _args, std::unique_ptr<StatAST> _body);
+		void CreateVariable(const std::string& var_name, std::shared_ptr<Fuse::Object> obj);
 		
 		Parser _Parser;
 		Lexer _Lexer;

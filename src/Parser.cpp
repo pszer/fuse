@@ -24,42 +24,135 @@ int Parser::GetNextToken() { return CurrTok = lex->GetNextToken(); }
 int Parser::GetCurrentToken() { return CurrTok; }
 
 std::unique_ptr<StatAST> Parser::ParseStatement() {
-	return nullptr;	
+	switch (GetCurrentToken()) {
+	case TOK_FUNCTION:
+		return ParseFuncDef();
+	case '{':
+		return ParseBlock();
+	default:
+		return StatLogError("Invalid statement");
+	}
 }
 		
 std::unique_ptr<StatAST> Parser::ParseFuncDef() {
-	return nullptr;	
+	GetNextToken(); // eat 'function' keyword
+	
+	std::string Name;
+	if (GetCurrentToken() != TOK_IDENTIFIER) {
+		return StatLogError("Expected identifier in function definition statement for the function's name");
+	}
+	Name = lex->IdName;
+	
+	if (GetNextToken() != '(') {
+		return StatLogError("Expected '(' for functions arguments");
+	}
+	
+	std::vector<std::string> Args;
+	bool expect_comma = false;
+	while (1) {
+		GetNextToken();
+		
+		if (GetCurrentToken() == ')') break;
+		
+		if (GetCurrentToken() == TOK_IDENTIFIER) {
+			if (expect_comma) return StatLogError("Expected ',' before next function argument");
+			Args.push_back(lex->IdName);
+			expect_comma = true;
+		} else if (expect_comma && (GetCurrentToken() == ',')) {
+			expect_comma = false;
+		} else {
+			return StatLogError("Unexpected token in function arguments");
+		}
+	}
+	
+	auto Body = Parser::ParseStatement();
+	auto Func = std::make_shared<FunctionAST> (Args, std::move(Body));
+	
+	_Core->CreateVariable(Name, std::make_shared<Function>(Func));
+	
+	return std::move( std::make_unique<FuncDefStatAST>(Func) );
 }
 
 std::unique_ptr<ExprAST> Parser::ParseLambdaDef() {
-	return nullptr;	
+	GetNextToken(); // eat 'function' keyword
+	
+	if (GetCurrentToken() == TOK_IDENTIFIER) {
+		return ExprLogError("Unexpected function name for anonymous function expression");
+	}
+	
+	if (GetCurrentToken() != '(') {
+		return ExprLogError("Expected '(' for functions arguments");
+	}
+	
+	std::vector<std::string> Args;
+	bool expect_comma = false;
+	while (1) {
+		GetNextToken();
+		
+		if (GetCurrentToken() == ')') break;
+		
+		if (GetCurrentToken() == TOK_IDENTIFIER) {
+			if (expect_comma) return ExprLogError("Expected ',' before next function argument");
+			Args.push_back(lex->IdName);
+			expect_comma = true;
+		} else if (expect_comma && (GetCurrentToken() == ',')) {
+			expect_comma = false;
+		} else {
+			return ExprLogError("Unexpected token in function arguments");
+		}
+	}
+	
+	auto Body = Parser::ParseStatement();
+	auto Func = std::make_shared<FunctionAST> (Args, std::move(Body));
+	
+	return std::move( std::make_unique<FuncDefExprAST>(Func) );
 }
 		
 std::unique_ptr<StatAST> Parser::ParseBlock() {
-	return nullptr;	
+	GetNextToken(); // eat '{' character
+	
+	std::vector<std::unique_ptr<StatAST>> Stats;
+	while (GetCurrentToken() != '}') {
+		if (GetCurrentToken() == TOK_EOF)
+			return StatLogError("Reached EOF while expected '}'");
+			
+		Stats.push_back( Parser::ParseStatement() );
+	}
+	
+	GetNextToken(); // eat '}'
+	
+	return std::move( std::make_unique<BlockAST>(Stats) );
 }
 
 std::unique_ptr<StatAST> Parser::ParseReturn() {
-	return nullptr;	
+	GetNextToken(); // eat 'return' keyword
+	return std::move( std::make_unique<ReturnAST>( Parser::ParseExpression() ) );
 }
 		
+std::unique_ptr<ExprAST> ParseExprPrimary() {
+	
+}
 		
 std::unique_ptr<ExprAST> Parser::ParseExpression() {
-	return nullptr;	
+	auto LHS = ParseExprPrimary();
 }
 		
 std::unique_ptr<ExprAST> Parser::ParseNumber() {
-	return nullptr;	
+	auto result = std::make_unique<NumberAST>( (lex->IsInt ? lex->IntVal : lex->DoubleVal) );
+	GetNextToken();
+	return std::move(result);
 }
 
 std::unique_ptr<ExprAST> Parser::ParseString() {
-	return nullptr;
+	auto result = std::make_unique<StringAST>( lex->String );
+	GetNextToken();
+	return std::move(result);
 }
 
 std::unique_ptr<ExprAST> Parser::ParseBoolean() {
 	if (GetCurrentToken() == TOK_FALSE) {
-		return nullptr;
+		return std::move( std::make_unique<BoolAST>(false) );
 	} else {
-		return nullptr;
+		return std::move( std::make_unique<BoolAST>(true) );
 	}
 }

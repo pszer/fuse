@@ -26,7 +26,7 @@ namespace Fuse {
 	private:
 	};
 	
-	class Null : Object {
+	class Null : public Object {
 	public:
 		Null* Clone();
 		std::string ToString();

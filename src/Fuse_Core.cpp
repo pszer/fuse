@@ -2,7 +2,7 @@
 
 using namespace Fuse;
 
-Core::Core(): _Parser( Parser(&_Lexer, &Scopes)) {
+Core::Core(): _Parser( Parser(&_Lexer, this, &Scopes)) {
 	Scopes.emplace_back(); // Create global scope
 }
 
@@ -39,7 +39,6 @@ VAR_SET_STATE Core::SetVariable(const std::string& var_name, std::shared_ptr<Fus
 	return SUCCESS;
 }
 
-FunctionAST* Core::EmplaceFunction(const std::vector<std::string>& _args, std::unique_ptr<StatAST> _body) {
-	Functions.emplace_back(_args, _body);
-	return Functions.back().get();
+void Core::CreateVariable(const std::string& var_name, std::shared_ptr<Fuse::Object> obj) {
+	Scopes.back()[var_name] = obj;
 }

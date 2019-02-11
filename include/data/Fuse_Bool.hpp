@@ -4,7 +4,7 @@
 
 namespace Fuse {
 	
-	class Bool : Object {
+	class Bool : public Object {
 	public:
 		Bool();
 		Bool(bool _val): val(_val) { ; }

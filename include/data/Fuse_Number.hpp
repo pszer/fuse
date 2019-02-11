@@ -25,7 +25,7 @@ namespace Fuse {
 		};
 	};
 	
-	class Number : Object {
+	class Number : public Object {
 	public:
 		Number();
 		Number(long long _long): val(_long) { ; }

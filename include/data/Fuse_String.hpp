@@ -4,7 +4,7 @@
 
 namespace Fuse {
 	
-	class String : Object {
+	class String : public Object {
 	public:
 		String();
 		String(const std::string& _str): str(_str) { ; }

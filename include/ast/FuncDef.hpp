@@ -8,13 +8,14 @@ namespace Fuse {
 		function foo(x,y) return x+y;
 		^ FuncDefStatAST
 	*/
-	class FuncDefStatAST : StatAST {
+	class FuncDefStatAST : public StatAST {
 	public:
-		FuncDefStatAST(FunctionAST* _func): Func(_func) { ; }
+		FuncDefStatAST(std::shared_ptr<FunctionAST> _func): Func(_func) { ; }
 		
 		std::shared_ptr<Fuse::Object> Eval();
+		std::shared_ptr<FunctionAST> GetFunc();
 	private:
-		FunctionAST* Func = nullptr;
+		std::shared_ptr<FunctionAST> Func = nullptr;
 		TypeAST type = NODE_FUNC_DEF;
 	};
 
@@ -22,13 +23,14 @@ namespace Fuse {
 		foo = function(x,y) return x+y;
 		      ^ FuncDefExprAST
 	*/
-	class FuncDefExprAST : ExprAST {
+	class FuncDefExprAST : public ExprAST {
 	public:
-		FuncDefExprAST(FunctionAST* _func): Func(_func) { ; }
+		FuncDefExprAST(std::shared_ptr<FunctionAST> _func): Func(_func) { ; }
 		
 		std::shared_ptr<Fuse::Object> Eval();
+		std::shared_ptr<FunctionAST> GetFunc();
 	private:
-		FunctionAST* Func = nullptr;
+		std::shared_ptr<FunctionAST> Func = nullptr;
 		TypeAST type = NODE_FUNC_DEF;
 	};
 

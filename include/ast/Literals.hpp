@@ -5,7 +5,7 @@
 
 namespace Fuse {
 
-	class NumberAST : ExprAST {
+	class NumberAST : public ExprAST {
 	public:
 		NumberAST(long long _long);
 		NumberAST(double _double);
@@ -17,7 +17,7 @@ namespace Fuse {
 		TypeAST type = NODE_NUMBER;
 	};
 	
-	class StringAST : ExprAST {
+	class StringAST : public ExprAST {
 	public:
 		StringAST(const std::string& str);
 		
@@ -28,7 +28,7 @@ namespace Fuse {
 		TypeAST type = NODE_STRING;
 	};
 	
-	class BoolAST : ExprAST {
+	class BoolAST : public ExprAST {
 	public:
 		BoolAST(bool _bool);
 		

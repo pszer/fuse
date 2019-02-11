@@ -4,10 +4,10 @@
 
 namespace Fuse {
 	
-	class Function : Object {
+	class Function : public Object {
 	public:
 		Function() { ; }
-		Function(FunctionAST* _func): Func(_func) { ; }
+		Function(std::shared_ptr<FunctionAST> _func): Func(_func) { ; }
 		
 		Function* Clone();
 		
@@ -17,7 +17,7 @@ namespace Fuse {
 		std::string ToString();
 	private:
 		Type type = TYPE_FUNCTION;
-		FunctionAST * Func = nullptr;
+		std::shared_ptr<FunctionAST> Func = nullptr;
 	};
 	
 };

@@ -9,7 +9,7 @@
 
 namespace Fuse {
 
-	class Table : Object {
+	class Table : public Object {
 	public:
 		Table();
 	

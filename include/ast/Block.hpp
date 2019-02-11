@@ -7,7 +7,7 @@
 
 namespace Fuse {
 
-	class BlockAST : StatAST {
+	class BlockAST : public StatAST {
 	public:
 		BlockAST(std::vector<std::unique_ptr<StatAST> >& _stats);
 	
@@ -19,7 +19,7 @@ namespace Fuse {
 		TypeAST type = NODE_BLOCK;
 	};
 
-	class ReturnAST : StatAST {
+	class ReturnAST : public StatAST {
 	public:
 		// _expr can be nullptr, if it is then it
 		// is an empty return statement that implicitly

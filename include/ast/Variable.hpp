@@ -6,7 +6,7 @@ using VariableScopes = std::vector< std::map<std::string, std::shared_ptr<Fuse::
 
 namespace Fuse {
 
-	class VariableAST : ExprAST {
+	class VariableAST : public ExprAST {
 	public:
 		VariableAST(std::string _id, VariableScopes * _loc): Identifier(_id) { ; }
 		

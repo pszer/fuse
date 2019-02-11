@@ -4,7 +4,7 @@
 
 namespace Fuse {
 	
-	class ObjectAST : ExprAST {
+	class ObjectAST : public ExprAST {
 	public:
 		ObjectAST(std::shared_ptr<Fuse::Object> _obj): Obj(_obj) { ; }
 		
