@@ -12,8 +12,9 @@ namespace Fuse {
 		Function* Clone();
 		
 		const std::vector<std::string>& GetArgs();
-		
 		std::string ToString();
+		
+		std::shared_ptr<Fuse::Object> Call(std::vector< std::shared_ptr<Object> >& call_args);
 	private:
 		Type type = TYPE_FUNCTION;
 		std::shared_ptr<FunctionAST> Func = nullptr;

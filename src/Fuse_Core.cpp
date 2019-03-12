@@ -2,12 +2,21 @@
 
 using namespace Fuse;
 
-Core::Core(): _Parser( Parser(&_Lexer, this, &Scopes)) {
-	Scopes.emplace_back(); // Create global scope
+struct Fuse::Core Fuse::Core;
+
+Core::Core(): _Parser( Parser(&_Lexer, &Scopes)) {
+	InitOperations();
 }
 
-Scope& Core::GlobalScope() {
-	return Scopes.front();
+std::unique_ptr<ExprAST> Core::Parse() {
+	return std::move(_Parser.Parse());
+}
+
+Scope& Core::TopScope() {
+	if (Scopes.empty())
+		return GlobalScope;
+	else 
+		return Scopes.back();
 }
 
 void Core::EnterScope() {
@@ -15,8 +24,7 @@ void Core::EnterScope() {
 }
 
 void Core::LeaveScope() {
-	// Never leave global scope
-	if (Scopes.size() > 1) {
+	if (Scopes.size() > 0) {
 		Scopes.pop_back();
 	}
 }
@@ -27,6 +35,9 @@ std::shared_ptr<Fuse::Object>* Core::GetVariable(const std::string& var_name) {
 		auto v = scope.find(var_name);
 		if (v != scope.end()) return &(v->second);
 	}
+	
+	auto v = GlobalScope.find(var_name);
+	if (v != GlobalScope.end()) return &(v->second);
 	
 	return nullptr;
 }
@@ -40,5 +51,9 @@ VAR_SET_STATE Core::SetVariable(const std::string& var_name, std::shared_ptr<Fus
 }
 
 void Core::CreateVariable(const std::string& var_name, std::shared_ptr<Fuse::Object> obj) {
-	Scopes.back()[var_name] = obj;
+	if (!Scopes.empty())
+		Scopes.back()[var_name] = obj;
+	else
+		GlobalScope[var_name] = obj;
+	
 }

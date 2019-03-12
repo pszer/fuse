@@ -2,6 +2,7 @@
 
 #include "ast/Base.hpp"
 #include "Lexer.hpp"
+#include "Operations.hpp"
 
 namespace Fuse {
 
@@ -24,7 +25,7 @@ namespace Fuse {
 	// eg. ++i
 	class PreUnaryExprAST : public ExprAST {
 	public:
-		PreUnaryExprAST(std::unique_ptr<ExprAST> _expr, OPERATORS _op);
+		PreUnaryExprAST(std::unique_ptr<ExprAST> _expr, OPERATORS _op): Expr(std::move(_expr)), Operator(_op) { ; }
 		
 		std::shared_ptr<Fuse::Object> Eval();
 	private:
@@ -38,7 +39,7 @@ namespace Fuse {
 	// eg. i++
 	class PostUnaryExprAST : public ExprAST {
 	public:
-		PostUnaryExprAST(std::unique_ptr<ExprAST> _expr, OPERATORS _op);
+		PostUnaryExprAST(std::unique_ptr<ExprAST> _expr, OPERATORS _op): Expr(std::move(_expr)), Operator(_op) { ; }
 		
 		std::shared_ptr<Fuse::Object> Eval();
 	private:

@@ -4,6 +4,7 @@
 #include "data/Fuse_Object.hpp"
 #include "AST.hpp"
 #include "Parser.hpp"
+#include "Operations.hpp"
 
 #include <vector>
 #include <memory>
@@ -16,7 +17,7 @@ namespace Fuse {
 	
 	enum VAR_SET_STATE { SUCCESS , ERROR };
 	
-	class Core {
+	extern struct Core{
 	public:
 		Core();
 		
@@ -26,16 +27,20 @@ namespace Fuse {
 		VAR_SET_STATE SetVariable(const std::string& var_name, std::shared_ptr<Fuse::Object> obj);
 		void CreateVariable(const std::string& var_name, std::shared_ptr<Fuse::Object> obj);
 		
+		std::unique_ptr<ExprAST> Parse();
+		
 		Parser _Parser;
 		Lexer _Lexer;
 	private:
 	
-		// Get global scope
-		Scope& GlobalScope();
+		// Returns top scope
+		Scope& TopScope();
 		// Enter a new scope
 		void EnterScope();
 		// Leave current scope
 		void LeaveScope();
+		Scope GlobalScope;
 		VariableScopes Scopes;
-	};
+	} Core;
+	
 };

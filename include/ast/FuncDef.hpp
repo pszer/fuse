@@ -6,9 +6,9 @@ namespace Fuse {
 
 	/* Used for standard function definitions such as
 		function foo(x,y) return x+y;
-		^ FuncDefStatAST
+		^ FuncDefExprAST
 	*/
-	class FuncDefStatAST : public StatAST {
+	class FuncDefStatAST : public ExprAST {
 	public:
 		FuncDefStatAST(std::shared_ptr<FunctionAST> _func): Func(_func) { ; }
 		

@@ -7,19 +7,19 @@
 
 namespace Fuse {
 
-	class BlockAST : public StatAST {
+	class BlockAST : public ExprAST {
 	public:
-		BlockAST(std::vector<std::unique_ptr<StatAST> >& _stats);
+		BlockAST(std::vector<std::unique_ptr<ExprAST> >& _stats);
 	
 		// Eval returns something if there is a return statement
 		// inside the block, otherwise it returns nullptr
 		std::shared_ptr<Fuse::Object> Eval();
 	private:
-		std::vector<std::unique_ptr<StatAST> > Statements;
+		std::vector<std::unique_ptr<ExprAST> > Statements;
 		TypeAST type = NODE_BLOCK;
 	};
 
-	class ReturnAST : public StatAST {
+	class ReturnAST : public ExprAST {
 	public:
 		// _expr can be nullptr, if it is then it
 		// is an empty return statement that implicitly

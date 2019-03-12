@@ -6,7 +6,7 @@ using namespace Fuse;
 BlockAST
 */
 
-Fuse::BlockAST::BlockAST(std::vector<std::unique_ptr<StatAST> >& _stats):
+Fuse::BlockAST::BlockAST(std::vector<std::unique_ptr<ExprAST> >& _stats):
 	Statements(std::move(_stats))
 {
 	// conserve space since more statements will never be added
@@ -22,6 +22,8 @@ std::shared_ptr<Fuse::Object> Fuse::BlockAST::Eval() {
 		
 		(*STAT)->Eval();
 	}
+	
+	return nullptr;
 }
 
 /*

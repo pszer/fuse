@@ -9,9 +9,13 @@ Function* Fuse::Function::Clone() {
 }
 
 std::string Fuse::Function::ToString() {
-	return "function";
+	return "function :-)";
 }
 
 const std::vector<std::string>& Fuse::Function::GetArgs() {
 	return Func->GetArgs();
+}
+
+std::shared_ptr<Fuse::Object> Fuse::Function::Call(std::vector< std::shared_ptr<Object> >& call_args) {
+	return Func->Call(call_args);
 }

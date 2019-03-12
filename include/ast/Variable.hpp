@@ -6,9 +6,11 @@ using VariableScopes = std::vector< std::map<std::string, std::shared_ptr<Fuse::
 
 namespace Fuse {
 
+	class Core;
+
 	class VariableAST : public ExprAST {
 	public:
-		VariableAST(std::string _id, VariableScopes * _loc): Identifier(_id) { ; }
+		VariableAST(std::string _id): Identifier(_id) { ; }
 		
 		// Returns nullptr for an error
 		std::shared_ptr<Fuse::Object> Eval();
@@ -16,7 +18,6 @@ namespace Fuse {
 		const std::string& GetIdentifier();
 	private:
 		std::string Identifier;
-		VariableScopes * Locations;
 		
 		TypeAST type = NODE_VARIABLE;
 	};

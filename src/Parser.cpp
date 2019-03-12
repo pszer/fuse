@@ -3,7 +3,7 @@
 
 using namespace Fuse;
 
-std::unique_ptr<StatAST> Parser::StatLogError(const std::string& str) {
+std::unique_ptr<ExprAST> Parser::StatLogError(const std::string& str) {
 	std::cerr << "\033[0;31mERROR\033[0m: " << str << std::endl;
 	return nullptr;
 }
@@ -17,8 +17,13 @@ void Parser::LogWarning(const std::string& str) {
 	std::cerr << "\033[1;33mWarning\033[0m:: " << str << std::endl;
 }
 
-std::unique_ptr<StatAST> Parser::Parse() {
-	return ParseStatement();
+std::unique_ptr<ExprAST> Parser::Parse() {
+	GetNextToken();
+	auto stat = ParseExpression();
+	if (stat == nullptr) {
+		return nullptr;
+	}
+	else return std::move(stat);
 }
 
 int Parser::GetPrecedence(OPERATORS op) {
@@ -27,6 +32,7 @@ int Parser::GetPrecedence(OPERATORS op) {
 }
 
 int Parser::GetTokenPrecedence() {
+	if (GetCurrentToken() != TOK_OPERATOR) return -1;
 	int TokPrec = GetPrecedence(lex->Operator);
 	if (TokPrec <= 0) return -1;
 	return TokPrec;
@@ -39,20 +45,46 @@ bool Parser::IsPrefixOp(OPERATORS op) {
 int Parser::GetNextToken() { return CurrTok = lex->GetNextToken(); }
 int Parser::GetCurrentToken() { return CurrTok; }
 
-std::unique_ptr<StatAST> Parser::ParseStatement() {
+std::unique_ptr<ExprAST> Parser::ParseExpression() {
+	std::cout << "parsing expr" << std::endl;
+	auto LHS = ParsePrimary();
+	if (!LHS) return nullptr;
+	
+	return ParseBinopRHS(0, std::move(LHS));
+}
+
+std::unique_ptr<ExprAST> Parser::ParsePrimary() {
+	std::cout << "Parsing statement" << std::endl;
+	
+	std::cout << GetCurrentToken() << std::endl;
+	std::unique_ptr<ExprAST> id;
 	switch (GetCurrentToken()) {
 	case TOK_FUNCTION:
 		return ParseFuncDef();
 	case TOK_RETURN:
+		std::cout << "RETURN PARSE" << std::endl;
 		return ParseReturn();
+	case TOK_IDENTIFIER:
+	case '(':
+		id = ParseIdentifier();
+		return std::move(id);
 	case '{':
+		std::cout << "block" << std::endl;
 		return ParseBlock();
+	case TOK_STRING:
+		return ParseString();
+	case TOK_TRUE:
+	case TOK_FALSE:
+		return ParseBoolean();
+	case TOK_NUMBER:
+		return ParseNumber();
+	case ';':
 	default:
 		return StatLogError("Invalid statement");
 	}
 }
 		
-std::unique_ptr<StatAST> Parser::ParseFuncDef() {
+std::unique_ptr<ExprAST> Parser::ParseFuncDef() {
 	GetNextToken(); // eat 'function' keyword
 	
 	std::string Name;
@@ -83,12 +115,17 @@ std::unique_ptr<StatAST> Parser::ParseFuncDef() {
 		}
 	}
 	
-	auto Body = Parser::ParseStatement();
+	GetNextToken(); // eat ')'
+	
+	std::cout << "FUNC_BODY" << std::endl;
+	auto Body = Parser::ParseExpression();
+	if (Body == nullptr) return nullptr;
 	auto Func = std::make_shared<FunctionAST> (Args, std::move(Body));
+	if (Func == nullptr) return nullptr;
 	
-	_Core->CreateVariable(Name, std::make_shared<Function>(Func));
+	Core.CreateVariable(Name, std::make_shared<Function>(Func));
 	
-	return std::move( std::make_unique<FuncDefStatAST>(Func) );
+	return std::move( std::make_unique<FuncDefExprAST>(Func) );
 }
 
 std::unique_ptr<ExprAST> Parser::ParseLambdaDef() {
@@ -120,21 +157,25 @@ std::unique_ptr<ExprAST> Parser::ParseLambdaDef() {
 		}
 	}
 	
-	auto Body = Parser::ParseStatement();
+	GetNextToken(); // eat ')'
+	
+	auto Body = Parser::ParseExpression();
 	auto Func = std::make_shared<FunctionAST> (Args, std::move(Body));
 	
 	return std::move( std::make_unique<FuncDefExprAST>(Func) );
 }
 		
-std::unique_ptr<StatAST> Parser::ParseBlock() {
+std::unique_ptr<ExprAST> Parser::ParseBlock() {
 	GetNextToken(); // eat '{' character
 	
-	std::vector<std::unique_ptr<StatAST>> Stats;
+	std::vector<std::unique_ptr<ExprAST>> Stats;
 	while (GetCurrentToken() != '}') {
 		if (GetCurrentToken() == TOK_EOF)
 			return StatLogError("Reached EOF while expected '}'");
 			
-		Stats.push_back( Parser::ParseStatement() );
+		auto stat = ParseExpression();
+		if (stat == nullptr) return nullptr;
+		Stats.push_back( std::move(stat) );
 	}
 	
 	GetNextToken(); // eat '}'
@@ -142,70 +183,119 @@ std::unique_ptr<StatAST> Parser::ParseBlock() {
 	return std::move( std::make_unique<BlockAST>(Stats) );
 }
 
-std::unique_ptr<StatAST> Parser::ParseReturn() {
+std::unique_ptr<ExprAST> Parser::ParseReturn() {
 	GetNextToken(); // eat 'return' keyword
 	auto Expr = ParseExpression();
-	return std::move( std::make_unique<ReturnAST>( Expr ) );
+	if (Expr == nullptr) {
+		std::cout << "returns fucked" << std::endl;
+	} else std::cout << "returns GOOOOOOD" << std::endl;
+	return std::make_unique<ReturnAST>( Expr );
 }
-		
-std::unique_ptr<ExprAST> Parser::ParseExprPrimary() {
-	std::unique_ptr<ExprAST> expr;
+
+std::unique_ptr<ExprAST> Parser::ParseIdentifier() {
+	auto expr = ParsePrefix();
+	if (expr == nullptr) return nullptr;
 	
-	switch (GetCurrentToken()) {
-	case TOK_NUMBER:
-		expr = ParseNumber();
-		break;
-	case TOK_STRING:
-		expr = ParseString();
-		break;
-	case TOK_TRUE:
-	case TOK_FALSE:
-		expr = ParseBoolean();
-		break;
-	case TOK_OPERATOR:
-		if (IsPrefixOp(lex->Operator)) {
-			expr = ParsePreUnopExpr();
-		}
-		break;
+	// var ‘=’ exp
+	if (GetCurrentToken() == TOK_OPERATOR && lex->Operator == OP_EQUAL) {
+		return ParseAssign(expr);
+	} else if (GetCurrentToken() == '(') {
+		return ParseFuncCall();
+	} else {
+		return std::move(expr);
 	}
 }
-		
-std::unique_ptr<ExprAST> Parser::ParseExpression() {
-	auto LHS = ParseExprPrimary();
-	if (!LHS) return nullptr;
+
+std::unique_ptr<ExprAST> Parser::ParseFuncCall() {
+	return nullptr;
+}
+
+std::unique_ptr<ExprAST> Parser::ParseAssign(std::unique_ptr<ExprAST>& expr) {
+	GetNextToken(); // eat '='
+	return nullptr;
+}
+
+std::unique_ptr<ExprAST> Parser::ParsePrefix() {
+	std::cout << "PARSING PREFIX" << std::endl;
 	
-	return ParseBinopRHS(0, std::move(LHS));
+	// '(' exp ')'
+	if (GetCurrentToken() == '(') {
+		GetNextToken(); // eat '('
+		
+		auto expr = Parser::ParseExpression();
+		if (GetCurrentToken() != ')') {
+			return ExprLogError("Expected ')'");
+		} else return std::move(expr);
+	}
+	
+	std::string Identifier = lex->IdName;
+	switch (GetNextToken()) {
+	// funccall
+	case '(':
+		return ParseFuncCall();
+		
+	// var ::= Name | prefixexp ‘[‘ exp ‘]’ | prefixexp ‘.’ Name
+	case '[':
+		break;
+	case '.':
+		break;
+	default:
+		return ParseVariable();
+	}
+	
+	return nullptr;
+}
+
+
+std::unique_ptr<ExprAST> Parser::ParseVariable() {
+	return std::move(std::make_unique<VariableAST>(lex->IdName));
 }
 		
 std::unique_ptr<ExprAST> Parser::ParseBinopRHS(int ExprPrec, std::unique_ptr<ExprAST> LHS) {
 	while (1) {
-		int TokPrec = GetTokenPrecedence();
+		std::cout << "BINOP: " << GetCurrentToken() << std::endl;
 		
-		if (TokPrec < ExprPrec || (GetCurrentToken() == ')') || (GetCurrentToken() == '}') || (GetCurrentToken() == ']'))
+		//if (GetCurrentToken() == TOK_EOF) return std::move(LHS);
+		
+		//std::cout << "1" << std::endl;
+		int TokPrec = GetTokenPrecedence();
+		std::cout << "TokPrec: " << TokPrec << std::endl;
+		
+		if (TokPrec < ExprPrec) {
+			std::cout << "mad " << LHS.get() << std::endl;
 			return std::move(LHS);
+		}
+			
+		//std::cout << "2" << std::endl;
 			
 		OPERATORS Binop = lex->Operator;
 		GetNextToken(); // eat binop
 		
-		auto RHS = ParseExprPrimary();
-		if (RHS) return nullptr;
+		//std::cout << "3" << std::endl;
+		
+		auto RHS = ParsePrimary();
+		if (!RHS) { std::cout << "RHS fucked" << std::endl; return nullptr; }
 		
 		int NextPrec = GetTokenPrecedence();
 		
+		//std::cout << "4" << std::endl;
+		
 		if (TokPrec < NextPrec) {
 			RHS = ParseBinopRHS(TokPrec + 1, std::move(RHS));
-			if (!RHS) return nullptr;
+			if (!RHS) { std::cout << "RHS fucked" << std::endl; return nullptr; }
 		}
 		
-		LHS = std::make_unique<BinaryExprAST>(Binop, std::move(LHS), std::move(RHS));
+		LHS = std::make_unique<BinaryExprAST>(std::move(LHS), std::move(RHS), Binop);
+		
+		std::cout << ":-)" << std::endl;
 	}
 }
 
-std::unique_ptr<ExprAST> ParsePreUnopExpr() {
+std::unique_ptr<ExprAST> Parser::ParsePreUnopExpr() {
 	
 }
 
-std::unique_ptr<ExprAST> ParsePostUnopExpr() {
+std::unique_ptr<ExprAST> Parser::ParsePostUnopExpr() {
 	
 }
 		

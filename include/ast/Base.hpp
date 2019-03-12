@@ -84,7 +84,7 @@ namespace Fuse {
 	
 	/*
 	
-	StatAST is the base class for all statement nodes.
+	ExprAST is the base class for all expression and statement nodes.
 	
 	statement ::= var ‘=’ exp |
 	              functioncall |
@@ -96,29 +96,10 @@ namespace Fuse {
 	              for ‘(‘ [new] var in exp ‘)’ block |
 	              switch ‘(‘ exp ‘)’ ‘{‘ { case ‘(‘ explist ‘)’ block } ‘}’ |
 	              function funcname funcbody
-	*/
-	class StatAST {
-	public:
-		// Eval executes the statement.
-		//
-		// Eval doesn't return anything for most statements (returns nullptr)
-		// Some statements like function calls do return things, in which case they
-		// return a shared ptr of the object
-		virtual std::shared_ptr<Fuse::Object> Eval() = 0;
-		
-		TypeAST GetType();
-	protected:
-		TypeAST type = NODE_NULL;
-	};
-	
-	
-	
-	/*
-	
-	ExprAST is the base class for all expression nodes.
 	
 	exp ::= NULL | false | true | Number | String | function | prefixexp |
         	tableconstructor | exp binop exp | prefixunop exp | exp postunop
+
 	*/
 	class ExprAST {
 	public:
@@ -133,15 +114,15 @@ namespace Fuse {
 		
 	class FunctionAST {
 	public:
-		FunctionAST(const std::vector<std::string>& _args, std::unique_ptr<StatAST> _body):
+		FunctionAST(const std::vector<std::string>& _args, std::unique_ptr<ExprAST> _body):
 		  Args(_args), Body(std::move(_body)) { ; }
 
 		const std::vector<std::string>& GetArgs();
-		const StatAST * GetBody();
+		const ExprAST * GetBody();
 		
-		std::shared_ptr<Fuse::Object> Call();
+		std::shared_ptr<Fuse::Object> Call(std::vector< std::shared_ptr<Object> >& call_args);
 	private:
 		std::vector<std::string> Args;
-		std::unique_ptr<StatAST> Body;
+		std::unique_ptr<ExprAST> Body;
 	};
 }

@@ -11,33 +11,34 @@ namespace Fuse {
 	enum Parser_State { PARSER_SUCCESS , PARSER_WARNING , PARSER_ERROR , PARSER_EOF };
 	
 	struct Parser {
-		Parser(Fuse::Lexer* _l, Core * _core, VariableScopes* _scopes): lex(_l), _Core(_core), _Scopes(_scopes) { ; }
+		Parser(Fuse::Lexer* _l, VariableScopes* _scopes): lex(_l) { ; }
 		
-		std::unique_ptr<StatAST> Parse();
+		std::unique_ptr<ExprAST> Parse();
 	private:
-		using VariableScopes = std::vector< std::map<std::string, std::shared_ptr<Fuse::Object>> >;
-		VariableScopes * _Scopes;
-		Fuse::Core * _Core;
-	
 		int GetNextToken();
 		int GetCurrentToken();
 		int CurrTok;
 	
-		std::unique_ptr<StatAST> StatLogError(const std::string& );
+		std::unique_ptr<ExprAST> StatLogError(const std::string& );
 		std::unique_ptr<ExprAST> ExprLogError(const std::string& );
 		void LogWarning(const std::string&);
 	
-		std::unique_ptr<StatAST> ParseStatement();
+		std::unique_ptr<ExprAST> ParseExpression();
+		std::unique_ptr<ExprAST> ParsePrimary();
 		
-		std::unique_ptr<StatAST> ParseFuncDef();
+		std::unique_ptr<ExprAST> ParseFuncDef();
 		std::unique_ptr<ExprAST> ParseLambdaDef();
 		
-		std::unique_ptr<StatAST> ParseBlock();
-		std::unique_ptr<StatAST> ParseReturn();
+		std::unique_ptr<ExprAST> ParseBlock();
+		std::unique_ptr<ExprAST> ParseReturn();
+		std::unique_ptr<ExprAST> ParseIdentifier();
+		std::unique_ptr<ExprAST> ParseFuncCall();
+		std::unique_ptr<ExprAST> ParseAssign(std::unique_ptr<ExprAST>& expr);
 		
-		std::unique_ptr<ExprAST> ParseExpression();
-		std::unique_ptr<ExprAST> ParseExprPrimary();
 		std::unique_ptr<ExprAST> ParseBinopRHS(int ExprPrec, std::unique_ptr<ExprAST> LHS);
+		
+		std::unique_ptr<ExprAST> ParsePrefix();
+		std::unique_ptr<ExprAST> ParseVariable();
 		
 		std::unique_ptr<ExprAST> ParsePreUnopExpr();
 		std::unique_ptr<ExprAST> ParsePostUnopExpr();
@@ -56,7 +57,7 @@ namespace Fuse {
 		/* OP_EQUAL, OP_ADD, OP_SUB, OP_MULT, OP_DIV, OP_MODULO,
 		   OP_COMP_EQUAL, OP_COMP_LESS, OP_COMP_GREATER, OP_COMP_LESS_EQUAL, OP_COMP_GREATER_EQUAL,
 		   OP_AND, OP_OR, OP_INC, OP_DEC, OP_NEGATE, OP_NOT */
-		{    1 , 40 , 40 , 60 , 60 , 60 ,
+		{    1 , 50 , 50 , 40 , 40 , 40 ,
 		     30 , 30 , 30 , 30 , 30 ,
 		     20 , 20 , 10 , 10 , 10 , 10 };
 	};
