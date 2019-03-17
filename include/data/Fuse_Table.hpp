@@ -13,6 +13,8 @@ namespace Fuse {
 	public:
 		Table();
 	
+		Type GetType();
+	
 		Table* Clone(); // returns a clone of the table
 		
 		std::string ToString();
@@ -29,7 +31,6 @@ namespace Fuse {
 		void AddEntry(Object*);
 		void AddKey(Object*, const std::string& key);
 	private:
-		Type type = TYPE_TABLE;
 		std::vector< std::shared_ptr<Object> > data;
 		std::map< std::string , std::shared_ptr<Object> > dict;
 	};

@@ -4,6 +4,10 @@ using namespace Fuse;
 
 Fuse::String::String() { ; }
 
+Type Fuse::String::GetType() {
+	return TYPE_STRING;
+}
+
 String* Fuse::String::Clone() {
 	auto n = new String();
 	*n = *this;

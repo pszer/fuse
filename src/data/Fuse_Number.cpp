@@ -4,6 +4,10 @@ using namespace Fuse;
 
 Fuse::Number::Number() { ; }
 
+Type Fuse::Number::GetType() {
+	return TYPE_NUMBER;
+}
+
 Number* Fuse::Number::Clone() {
 	auto n = new Number();
 	*n = *this;

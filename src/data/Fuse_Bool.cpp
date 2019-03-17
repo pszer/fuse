@@ -4,6 +4,10 @@ using namespace Fuse;
 
 Fuse::Bool::Bool() { ; }
 
+Type Fuse::Bool::GetType() {
+	return TYPE_BOOL;
+}
+
 Bool* Fuse::Bool::Clone() {
 	auto n = new Bool();
 	*n = *this;

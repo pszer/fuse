@@ -4,6 +4,11 @@ using namespace Fuse;
 
 Table::Table() { ; }
 
+Type Fuse::Table::GetType() {
+	return TYPE_TABLE;
+}
+
+
 std::string Fuse::Table::ToString() {
 	return "{table}";
 }

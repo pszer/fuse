@@ -9,6 +9,8 @@ namespace Fuse {
 		Function() { ; }
 		Function(std::shared_ptr<FunctionAST> _func): Func(_func) { ; }
 		
+		Type GetType();
+		
 		Function* Clone();
 		
 		const std::vector<std::string>& GetArgs();
@@ -16,7 +18,6 @@ namespace Fuse {
 		
 		std::shared_ptr<Fuse::Object> Call(std::vector< std::shared_ptr<Object> >& call_args);
 	private:
-		Type type = TYPE_FUNCTION;
 		std::shared_ptr<FunctionAST> Func = nullptr;
 	};
 	

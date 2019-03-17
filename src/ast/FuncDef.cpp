@@ -2,6 +2,14 @@
 
 using namespace Fuse;
 
+TypeAST Fuse::FuncDefStatAST::GetType() {
+	return NODE_FUNC_DEF;
+}
+
+TypeAST Fuse::FuncDefExprAST::GetType() {
+	return NODE_FUNC_DEF;
+}
+
 std::shared_ptr<Fuse::Object> FuncDefStatAST::Eval() {
 	return std::shared_ptr<Fuse::Object>( (Object*)new Fuse::Function(Func) );
 }

@@ -12,6 +12,7 @@ namespace Fuse {
 		
 		std::shared_ptr<Fuse::Object> Eval();
 		Fuse::INumber& GetNum();
+		TypeAST GetType();
 	private:
 		Fuse::INumber INum;
 		TypeAST type = NODE_NUMBER;
@@ -23,6 +24,7 @@ namespace Fuse {
 		
 		std::shared_ptr<Fuse::Object> Eval();
 		std::string& GetString();
+		TypeAST GetType();
 	private:
 		std::string String;
 		TypeAST type = NODE_STRING;
@@ -34,6 +36,7 @@ namespace Fuse {
 		
 		std::shared_ptr<Fuse::Object> Eval();
 		bool& GetBool();
+		TypeAST GetType();
 	private:
 		bool Bool;
 		TypeAST type = NODE_BOOL;

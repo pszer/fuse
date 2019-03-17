@@ -13,6 +13,10 @@ Fuse::BlockAST::BlockAST(std::vector<std::unique_ptr<ExprAST> >& _stats):
 	Statements.shrink_to_fit(); 
 }
 
+TypeAST Fuse::BlockAST::GetType() {
+	return NODE_BLOCK;
+}
+
 std::shared_ptr<Fuse::Object> Fuse::BlockAST::Eval() {
 	for (auto STAT = Statements.begin(); STAT != Statements.end(); ++STAT) { 
 		// If return statement
@@ -29,6 +33,10 @@ std::shared_ptr<Fuse::Object> Fuse::BlockAST::Eval() {
 /*
 ReturnAST
 */
+
+TypeAST Fuse::ReturnAST::GetType() {
+	return NODE_RETURN;
+}
 
 Fuse::ReturnAST::ReturnAST(std::unique_ptr<ExprAST>& _expr) {
 	if (_expr == nullptr) {

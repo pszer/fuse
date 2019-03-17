@@ -17,12 +17,10 @@ namespace Fuse {
 
 	class Object {
 	public:
-		Type GetType(); // returns type
+		virtual Type GetType(); // returns type
 		virtual Object* Clone();   // returns nullptr
 		
 		virtual std::string ToString();
-	protected:
-		Type type = TYPE_OBJECT;
 	private:
 	};
 	
@@ -30,8 +28,8 @@ namespace Fuse {
 	public:
 		Null* Clone();
 		std::string ToString();
-	private:
-		Type type = TYPE_NULL;
+		
+		Type GetType();
 	};
 
 	Object* Clone(Object* );

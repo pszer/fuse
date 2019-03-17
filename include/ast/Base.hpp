@@ -107,9 +107,7 @@ namespace Fuse {
 		// so this function should never return nullptr.
 		virtual std::shared_ptr<Fuse::Object> Eval() = 0;
 
-		TypeAST GetType();
-	protected:
-		TypeAST type = NODE_NULL;
+		virtual TypeAST GetType() = 0;
 	};
 		
 	class FunctionAST {

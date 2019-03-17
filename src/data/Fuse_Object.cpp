@@ -34,7 +34,7 @@ Object* Fuse::Clone(std::shared_ptr<Object> o) {
 }
 
 Type Fuse::Object::GetType() {
-	return type;
+	return TYPE_OBJECT;
 }
 
 Object* Fuse::Object::Clone() {
@@ -46,6 +46,12 @@ std::string Fuse::Object::ToString() {
 }
 
 // null
+
+Type Fuse::Null::GetType() {
+	return TYPE_NULL;
+}
+
+
 Null* Null::Clone() {
 	auto n = new Null();
 	*n = *this;

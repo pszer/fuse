@@ -12,8 +12,11 @@ namespace Fuse {
 	public:
 		VariableAST(std::string _id): Identifier(_id) { ; }
 		
+		TypeAST GetType();
+		
 		// Returns nullptr for an error
 		std::shared_ptr<Fuse::Object> Eval();
+		std::shared_ptr<Fuse::Object>* Assign();
 		
 		const std::string& GetIdentifier();
 	private:

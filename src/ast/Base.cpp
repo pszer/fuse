@@ -3,11 +3,6 @@
 
 using namespace Fuse;
 
-TypeAST Fuse::ExprAST::GetType() {
-	return type;
-}
-
-
 const std::vector<std::string>& FunctionAST::GetArgs() {
 	return Args;
 }

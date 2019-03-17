@@ -9,6 +9,8 @@ namespace Fuse {
 		Bool();
 		Bool(bool _val): val(_val) { ; }
 		
+		Type GetType();
+		
 		Bool* Clone();
 		bool& Value();
 		

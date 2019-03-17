@@ -24,6 +24,18 @@ BoolAST::BoolAST(bool _bool) {
 	Bool = _bool;
 }
 
+TypeAST Fuse::NumberAST::GetType() {
+	return NODE_NUMBER;
+}
+
+TypeAST Fuse::StringAST::GetType() {
+	return NODE_STRING;
+}
+
+TypeAST Fuse::BoolAST::GetType() {
+	return NODE_BOOL;
+}
+
 /*
 Get functions
 */
@@ -45,17 +57,14 @@ Eval functions
 */
 
 std::shared_ptr<Fuse::Object> NumberAST::Eval() {
-	Fuse::Number* num = new Fuse::Number(num->GetNum());
-	num->GetNum() = INum;
-	return std::shared_ptr<Object>((Object*)num);
+	std::cout << "num eval" << std::endl;
+	return std::make_shared<Fuse::Number>(INum);
 }
 
 std::shared_ptr<Fuse::Object> StringAST::Eval() {
-	Fuse::String* str = new Fuse::String(str->Str());
-	return std::shared_ptr<Object>((Object*)str);
+	return std::make_shared<Fuse::String>(String);
 }
 
 std::shared_ptr<Fuse::Object> BoolAST::Eval() {
-	Fuse::Bool* b = new Fuse::Bool(b->Value());
-	return std::shared_ptr<Object>((Object*)b);
+	return std::make_shared<Fuse::Bool>(Bool);
 }

@@ -2,6 +2,10 @@
 
 using namespace Fuse;
 
+Type Fuse::Function::GetType() {
+	return TYPE_FUNCTION;
+}
+
 Function* Fuse::Function::Clone() {
 	auto n = new Function();
 	*n = *this;

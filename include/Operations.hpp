@@ -1,16 +1,22 @@
 #pragma once
 
-#include <map>
+#include <utility>
 
 #include "data/Fuse_Object.hpp"
 #include "Lexer.hpp"
 
 namespace Fuse {
 	
-	unsigned int OpDef (Type _LHS, Type _RHS, OPERATORS _Op);
-	
 	typedef std::shared_ptr<Object> (*Operation_Func)(std::shared_ptr<Object>,std::shared_ptr<Object>);
-	extern std::map< unsigned int, Operation_Func> Operations;
+	
+	struct Operation {
+		Operation(Type _a, Type _b, Operation_Func _func):
+			a(_a), b(_b), func(_func) { ; }
+		
+		Type a, b;
+		Operation_Func func;
+	};
+	
 	void InitOperations();
 		
 	Operation_Func GetOperation(Type a, Type b, OPERATORS op);
@@ -20,4 +26,7 @@ namespace Fuse {
 	
 	std::shared_ptr<Object> __Num_Num_Add__(std::shared_ptr<Object> a,std::shared_ptr<Object> b);
 	std::shared_ptr<Object> __Num_Num_Sub__(std::shared_ptr<Object> a,std::shared_ptr<Object> b);
+	std::shared_ptr<Object> __Num_Num_Mult__(std::shared_ptr<Object> a,std::shared_ptr<Object> b);
+	std::shared_ptr<Object> __Num_Num_Div__(std::shared_ptr<Object> a,std::shared_ptr<Object> b);
+	
 }

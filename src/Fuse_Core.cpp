@@ -30,7 +30,7 @@ void Core::LeaveScope() {
 }
 
 std::shared_ptr<Fuse::Object>* Core::GetVariable(const std::string& var_name) {
-	for (size_t i{ Scopes.size() }; --i;) {
+	for (size_t i = 0; i < Scopes.size(); ++i) {
 		auto scope = Scopes.at(i);
 		auto v = scope.find(var_name);
 		if (v != scope.end()) return &(v->second);
@@ -42,6 +42,12 @@ std::shared_ptr<Fuse::Object>* Core::GetVariable(const std::string& var_name) {
 	return nullptr;
 }
 
+std::shared_ptr<Fuse::Object> Core::CallFunction(const std::string& func_name, std::vector< std::shared_ptr<Object> >& call_args) {
+	auto func = GetVariable(func_name);
+	if (func == nullptr) return nullptr;
+	return dynamic_cast<Function*>(func->get())->Call(call_args);
+}
+
 VAR_SET_STATE Core::SetVariable(const std::string& var_name, std::shared_ptr<Fuse::Object> obj) {
 	auto var = GetVariable(var_name);
 	
@@ -50,10 +56,12 @@ VAR_SET_STATE Core::SetVariable(const std::string& var_name, std::shared_ptr<Fus
 	return SUCCESS;
 }
 
-void Core::CreateVariable(const std::string& var_name, std::shared_ptr<Fuse::Object> obj) {
-	if (!Scopes.empty())
+std::shared_ptr<Fuse::Object>* Core::CreateVariable(const std::string& var_name, std::shared_ptr<Fuse::Object> obj) {
+	if (!Scopes.empty()) {
 		Scopes.back()[var_name] = obj;
-	else
+		return &Scopes.back()[var_name];
+	} else {
 		GlobalScope[var_name] = obj;
-	
+		return &GlobalScope[var_name];
+	}
 }

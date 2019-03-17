@@ -14,6 +14,7 @@ namespace Fuse {
 		
 		std::shared_ptr<Fuse::Object> Eval();
 		std::shared_ptr<FunctionAST> GetFunc();
+		TypeAST GetType();
 	private:
 		std::shared_ptr<FunctionAST> Func = nullptr;
 		TypeAST type = NODE_FUNC_DEF;
@@ -29,6 +30,7 @@ namespace Fuse {
 		
 		std::shared_ptr<Fuse::Object> Eval();
 		std::shared_ptr<FunctionAST> GetFunc();
+		TypeAST GetType();
 	private:
 		std::shared_ptr<FunctionAST> Func = nullptr;
 		TypeAST type = NODE_FUNC_DEF;

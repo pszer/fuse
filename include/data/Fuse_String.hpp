@@ -9,6 +9,8 @@ namespace Fuse {
 		String();
 		String(const std::string& _str): str(_str) { ; }
 		
+		Type GetType();
+		
 		String* Clone();
 		
 		std::size_t Count(); // returns string length
@@ -16,7 +18,6 @@ namespace Fuse {
 		
 		std::string ToString();
 	private:
-		Type type = TYPE_STRING;
 		std::string str = "";
 	};
 	

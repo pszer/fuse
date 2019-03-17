@@ -9,3 +9,4 @@
 #include "ast/Object.hpp"
 #include "ast/Variable.hpp"
 #include "ast/BinaryExpr.hpp"
+#include "ast/Assign.hpp"

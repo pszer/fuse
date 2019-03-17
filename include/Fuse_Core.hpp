@@ -23,14 +23,17 @@ namespace Fuse {
 		
 		// Returns shared_ptr pointer to variable 'var_name's object, if variable doesn't exist it returns nullptr
 		std::shared_ptr<Fuse::Object>* GetVariable(const std::string& var_name);
+		std::shared_ptr<Fuse::Object>  CallFunction(const std::string& func_name, std::vector< std::shared_ptr<Object> >& call_args);
 		// Sets variable 'var_name' to an object, if variable doesn't exist returns enum ERROR otherwise SUCCESS
 		VAR_SET_STATE SetVariable(const std::string& var_name, std::shared_ptr<Fuse::Object> obj);
-		void CreateVariable(const std::string& var_name, std::shared_ptr<Fuse::Object> obj);
+		std::shared_ptr<Fuse::Object>* CreateVariable(const std::string& var_name, std::shared_ptr<Fuse::Object> obj);
 		
 		std::unique_ptr<ExprAST> Parse();
 		
 		Parser _Parser;
 		Lexer _Lexer;
+		
+		std::vector<Operation> Operations[OP_COUNT];
 	private:
 	
 		// Returns top scope

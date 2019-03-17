@@ -212,7 +212,10 @@ std::unique_ptr<ExprAST> Parser::ParseFuncCall() {
 
 std::unique_ptr<ExprAST> Parser::ParseAssign(std::unique_ptr<ExprAST>& expr) {
 	GetNextToken(); // eat '='
-	return nullptr;
+	auto RHS = ParseExpression();
+	if (RHS == nullptr) return nullptr;
+	
+	return std::make_unique<AssignAST>(std::move(expr), std::move(RHS));
 }
 
 std::unique_ptr<ExprAST> Parser::ParsePrefix() {

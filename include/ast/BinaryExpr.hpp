@@ -14,6 +14,7 @@ namespace Fuse {
 			LHS(std::move(_lhs)), RHS(std::move(_rhs)), Operator(_op) { ; }
 	
 		std::shared_ptr<Fuse::Object> Eval();
+		TypeAST GetType();
 	private:
 		std::unique_ptr<ExprAST> LHS, RHS;
 		OPERATORS Operator;
@@ -28,6 +29,7 @@ namespace Fuse {
 		PreUnaryExprAST(std::unique_ptr<ExprAST> _expr, OPERATORS _op): Expr(std::move(_expr)), Operator(_op) { ; }
 		
 		std::shared_ptr<Fuse::Object> Eval();
+		TypeAST GetType();
 	private:
 		std::unique_ptr<ExprAST> Expr;
 		OPERATORS Operator;
@@ -42,6 +44,7 @@ namespace Fuse {
 		PostUnaryExprAST(std::unique_ptr<ExprAST> _expr, OPERATORS _op): Expr(std::move(_expr)), Operator(_op) { ; }
 		
 		std::shared_ptr<Fuse::Object> Eval();
+		TypeAST GetType();
 	private:
 		std::unique_ptr<ExprAST> Expr;
 		OPERATORS Operator;

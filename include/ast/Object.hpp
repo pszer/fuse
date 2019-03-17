@@ -12,6 +12,7 @@ namespace Fuse {
 		std::shared_ptr<Fuse::Object> Eval();
 		std::shared_ptr<Fuse::Object> GetObject();
 		Type GetObjType();
+		TypeAST GetType();
 	private:
 		std::shared_ptr<Fuse::Object> Obj;
 		TypeAST type = NODE_OBJECT;

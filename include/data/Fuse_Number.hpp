@@ -33,10 +33,11 @@ namespace Fuse {
 		Number(INumber _inum): val(_inum) { ; }
 		Number* Clone();
 		
+		Type GetType();
+		
 		INumber& GetNum();
 		std::string ToString();
 	private:
-		Type type = TYPE_NUMBER;
 		INumber val;
 	};
 	

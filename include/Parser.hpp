@@ -57,7 +57,7 @@ namespace Fuse {
 		/* OP_EQUAL, OP_ADD, OP_SUB, OP_MULT, OP_DIV, OP_MODULO,
 		   OP_COMP_EQUAL, OP_COMP_LESS, OP_COMP_GREATER, OP_COMP_LESS_EQUAL, OP_COMP_GREATER_EQUAL,
 		   OP_AND, OP_OR, OP_INC, OP_DEC, OP_NEGATE, OP_NOT */
-		{    1 , 50 , 50 , 40 , 40 , 40 ,
+		{    1 , 40 , 40 , 50 , 50 , 50 ,
 		     30 , 30 , 30 , 30 , 30 ,
 		     20 , 20 , 10 , 10 , 10 , 10 };
 	};
