@@ -193,21 +193,35 @@ std::unique_ptr<ExprAST> Parser::ParseReturn() {
 }
 
 std::unique_ptr<ExprAST> Parser::ParseIdentifier() {
-	auto expr = ParsePrefix();
+	auto expr = ParsePrefix(nullptr);
 	if (expr == nullptr) return nullptr;
 	
 	// var ‘=’ exp
 	if (GetCurrentToken() == TOK_OPERATOR && lex->Operator == OP_EQUAL) {
 		return ParseAssign(expr);
 	} else if (GetCurrentToken() == '(') {
-		return ParseFuncCall();
+		return ParseFuncCall(expr);
 	} else {
 		return std::move(expr);
 	}
 }
 
-std::unique_ptr<ExprAST> Parser::ParseFuncCall() {
-	return nullptr;
+std::unique_ptr<ExprAST> Parser::ParseFuncCall(std::unique_ptr<ExprAST>& expr) {
+	GetNextToken(); // eat '='
+	
+	std::vector<std::unique_ptr<ExprAST>> Args;
+	while (1) {
+		auto arg = ParseExpression();
+		Args.push_back(std::move(arg));
+		
+		if (GetCurrentToken() == ')') {
+			break;
+		} else if (GetCurrentToken() != ',') {
+			return ExprLogError("Expected ',' in arguments list");
+		}
+	}
+	
+	return std::make_unique<FuncCallAST>(std::move(expr), Args);
 }
 
 std::unique_ptr<ExprAST> Parser::ParseAssign(std::unique_ptr<ExprAST>& expr) {
@@ -218,32 +232,35 @@ std::unique_ptr<ExprAST> Parser::ParseAssign(std::unique_ptr<ExprAST>& expr) {
 	return std::make_unique<AssignAST>(std::move(expr), std::move(RHS));
 }
 
-std::unique_ptr<ExprAST> Parser::ParsePrefix() {
+std::unique_ptr<ExprAST> Parser::ParsePrefix(std::unique_ptr<ExprAST> expr) {
 	std::cout << "PARSING PREFIX" << std::endl;
 	
 	// '(' exp ')'
-	if (GetCurrentToken() == '(') {
+	if (GetCurrentToken() == '(' && expr == nullptr) {
 		GetNextToken(); // eat '('
 		
-		auto expr = Parser::ParseExpression();
+		auto pre = Parser::ParsePrefix(std::move(expr));
 		if (GetCurrentToken() != ')') {
 			return ExprLogError("Expected ')'");
-		} else return std::move(expr);
+		} else return std::move(pre);
 	}
 	
-	std::string Identifier = lex->IdName;
+	std::unique_ptr<ExprAST> var;
+	if (!expr)
+		var = ParseVariable();
+	else
+		var = std::move(expr);
 	switch (GetNextToken()) {
 	// funccall
 	case '(':
-		return ParseFuncCall();
-		
+		return ParsePrefix(ParseFuncCall( var ));
 	// var ::= Name | prefixexp ‘[‘ exp ‘]’ | prefixexp ‘.’ Name
 	case '[':
 		break;
 	case '.':
 		break;
 	default:
-		return ParseVariable();
+		return std::move(var);
 	}
 	
 	return nullptr;

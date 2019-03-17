@@ -32,12 +32,12 @@ namespace Fuse {
 		std::unique_ptr<ExprAST> ParseBlock();
 		std::unique_ptr<ExprAST> ParseReturn();
 		std::unique_ptr<ExprAST> ParseIdentifier();
-		std::unique_ptr<ExprAST> ParseFuncCall();
+		std::unique_ptr<ExprAST> ParseFuncCall(std::unique_ptr<ExprAST>& expr);
 		std::unique_ptr<ExprAST> ParseAssign(std::unique_ptr<ExprAST>& expr);
 		
 		std::unique_ptr<ExprAST> ParseBinopRHS(int ExprPrec, std::unique_ptr<ExprAST> LHS);
 		
-		std::unique_ptr<ExprAST> ParsePrefix();
+		std::unique_ptr<ExprAST> ParsePrefix(std::unique_ptr<ExprAST> expr);
 		std::unique_ptr<ExprAST> ParseVariable();
 		
 		std::unique_ptr<ExprAST> ParsePreUnopExpr();

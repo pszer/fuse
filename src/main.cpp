@@ -4,7 +4,7 @@
 
 int main(int argc, char** argv) {
 	//std::stringstream str("function foo(x,y) return x + y * x - (x * y - y)");
-	std::stringstream str("foo = 100 + 305");
+	std::stringstream str("foo = 100 + 305; function bar(x) return x * x; bar(foo)");
 	
 	Fuse::Core._Lexer.SetReader(str);
 	
@@ -16,6 +16,8 @@ int main(int argc, char** argv) {
 	}*/
 	
 	auto result = Fuse::Core.Parse();
+	auto two = Fuse::Core.Parse();
+	auto three = Fuse::Core.Parse();
 	std::vector< std::shared_ptr<Fuse::Object> > args;
 	args.push_back( std::make_shared<Fuse::Number>(10ll) );
 	args.push_back( std::make_shared<Fuse::Number>(20ll) );
@@ -30,11 +32,9 @@ int main(int argc, char** argv) {
 	result->Eval();
 	std::cout << "ALL BUTTERS" << std::endl;
 	
-	auto foo = Fuse::Core.GetVariable("foo");
-	if (foo == nullptr) {
-		std::cout << "OH CRUD!!!!!!!!!" << std::endl;
-	}
-	std::cout << (*foo)->ToString() << std::endl;
+	//auto foo = Fuse::Core.GetVariable("foo");
+	auto foo = three->Eval();
+	std::cout << foo->ToString() << std::endl;
 
 	/*
 	std::cout << "Calling :-)" << std::endl;

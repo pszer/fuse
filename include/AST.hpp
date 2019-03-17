@@ -10,3 +10,4 @@
 #include "ast/Variable.hpp"
 #include "ast/BinaryExpr.hpp"
 #include "ast/Assign.hpp"
+#include "ast/FuncCall.hpp"
