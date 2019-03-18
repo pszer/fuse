@@ -10,6 +10,7 @@ TypeAST Fuse::VariableAST::GetType() {
 
 std::shared_ptr<Fuse::Object> VariableAST::Eval() {
 	auto v = Fuse::Core.GetVariable(Identifier);
+	if (v == nullptr) return nullptr;
 	
 	return *v;
 }

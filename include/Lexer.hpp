@@ -1,7 +1,7 @@
 #pragma once
 
 #include <iostream>
-#include <sstream>
+#include <istream>
 #include <map>
 
 namespace Fuse {
@@ -63,9 +63,11 @@ namespace Fuse {
 	struct Lexer {
 		// MOVES stream into the lexer (_stream becomes invalid)
 		// returns -1 if stream is empty (error), otherwise 0
-		int SetReader(std::stringstream& _stream);
+		int SetReader(std::istream* _stream);
+		void SetOut(std::ostream* _ostream, std::string str = "> ");
 		int GetNextToken(); // returns next token
 		bool IsStreamSet(); // returns stream_set
+		bool IsStreamEOF(); // returns stream->eof()
 		
 		int LastToken;
 		
@@ -91,11 +93,14 @@ namespace Fuse {
 		std::string TokenToString(int tok);
 	private:
 		bool stream_set = false;
-		std::stringstream stream; // lexer will tokenize this string stream.
+		std::istream* stream = nullptr; // lexer will tokenize this string stream.
+		std::ostream* ostream = nullptr; // lexer will output 'text_prefix' on every newline here
 		char C; // stored character used by Next()
+		std::string text_prefix = "> ";
 		
 		int Next();
 		inline void NextChar();
+		void PrintTextPrefix();
 		
 		// Line and char for error output
 		int line = 1, char_count = 0;

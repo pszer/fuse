@@ -13,7 +13,7 @@ namespace Fuse {
 	struct Parser {
 		Parser(Fuse::Lexer* _l, VariableScopes* _scopes): lex(_l) { ; }
 		
-		std::unique_ptr<ExprAST> Parse();
+		std::unique_ptr<ExprAST> ParseStatement();
 	private:
 		int GetNextToken();
 		int GetCurrentToken();
@@ -25,6 +25,7 @@ namespace Fuse {
 	
 		std::unique_ptr<ExprAST> ParseExpression();
 		std::unique_ptr<ExprAST> ParsePrimary();
+		std::unique_ptr<ExprAST> ParseParenExpr();
 		
 		std::unique_ptr<ExprAST> ParseFuncDef();
 		std::unique_ptr<ExprAST> ParseLambdaDef();

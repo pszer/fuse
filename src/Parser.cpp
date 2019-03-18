@@ -17,7 +17,7 @@ void Parser::LogWarning(const std::string& str) {
 	std::cerr << "\033[1;33mWarning\033[0m:: " << str << std::endl;
 }
 
-std::unique_ptr<ExprAST> Parser::Parse() {
+std::unique_ptr<ExprAST> Parser::ParseStatement() {
 	GetNextToken();
 	auto stat = ParseExpression();
 	if (stat == nullptr) {
@@ -46,7 +46,7 @@ int Parser::GetNextToken() { return CurrTok = lex->GetNextToken(); }
 int Parser::GetCurrentToken() { return CurrTok; }
 
 std::unique_ptr<ExprAST> Parser::ParseExpression() {
-	std::cout << "parsing expr" << std::endl;
+	//std::cout << "parsing expr" << std::endl;
 	auto LHS = ParsePrimary();
 	if (!LHS) return nullptr;
 	
@@ -54,22 +54,18 @@ std::unique_ptr<ExprAST> Parser::ParseExpression() {
 }
 
 std::unique_ptr<ExprAST> Parser::ParsePrimary() {
-	std::cout << "Parsing statement" << std::endl;
-	
-	std::cout << GetCurrentToken() << std::endl;
+	//std::cout << "Parsing statement" << std::endl;
+	//std::cout << GetCurrentToken() << std::endl;
 	std::unique_ptr<ExprAST> id;
 	switch (GetCurrentToken()) {
 	case TOK_FUNCTION:
 		return ParseFuncDef();
 	case TOK_RETURN:
-		std::cout << "RETURN PARSE" << std::endl;
 		return ParseReturn();
 	case TOK_IDENTIFIER:
-	case '(':
 		id = ParseIdentifier();
 		return std::move(id);
 	case '{':
-		std::cout << "block" << std::endl;
 		return ParseBlock();
 	case TOK_STRING:
 		return ParseString();
@@ -78,10 +74,24 @@ std::unique_ptr<ExprAST> Parser::ParsePrimary() {
 		return ParseBoolean();
 	case TOK_NUMBER:
 		return ParseNumber();
+	case '(':
+		return ParseParenExpr();
 	case ';':
+		return nullptr;
 	default:
 		return StatLogError("Invalid statement");
 	}
+}
+
+std::unique_ptr<ExprAST> Parser::ParseParenExpr() {
+	GetNextToken(); // eat '('
+	auto V = ParseExpression();
+	if (V == nullptr) return nullptr;
+	
+	if (GetCurrentToken() != ')')
+		return ExprLogError("Expected ')'");
+	GetNextToken();
+	return V;
 }
 		
 std::unique_ptr<ExprAST> Parser::ParseFuncDef() {
@@ -117,7 +127,6 @@ std::unique_ptr<ExprAST> Parser::ParseFuncDef() {
 	
 	GetNextToken(); // eat ')'
 	
-	std::cout << "FUNC_BODY" << std::endl;
 	auto Body = Parser::ParseExpression();
 	if (Body == nullptr) return nullptr;
 	auto Func = std::make_shared<FunctionAST> (Args, std::move(Body));
@@ -186,9 +195,8 @@ std::unique_ptr<ExprAST> Parser::ParseBlock() {
 std::unique_ptr<ExprAST> Parser::ParseReturn() {
 	GetNextToken(); // eat 'return' keyword
 	auto Expr = ParseExpression();
-	if (Expr == nullptr) {
-		std::cout << "returns fucked" << std::endl;
-	} else std::cout << "returns GOOOOOOD" << std::endl;
+	if (Expr == nullptr)
+		return nullptr;
 	return std::make_unique<ReturnAST>( Expr );
 }
 
@@ -207,18 +215,23 @@ std::unique_ptr<ExprAST> Parser::ParseIdentifier() {
 }
 
 std::unique_ptr<ExprAST> Parser::ParseFuncCall(std::unique_ptr<ExprAST>& expr) {
-	GetNextToken(); // eat '='
+	GetNextToken(); // eat '('
 	
 	std::vector<std::unique_ptr<ExprAST>> Args;
+	bool first = true;
 	while (1) {
+		if (GetCurrentToken() == ')') {
+			GetNextToken(); // eat ')'
+			break;
+		}
+		
+		if (!first && GetCurrentToken() != ',') {
+			return ExprLogError("Expected ',' in function call arguments");
+		}
+		
 		auto arg = ParseExpression();
 		Args.push_back(std::move(arg));
-		
-		if (GetCurrentToken() == ')') {
-			break;
-		} else if (GetCurrentToken() != ',') {
-			return ExprLogError("Expected ',' in arguments list");
-		}
+		first = false;
 	}
 	
 	return std::make_unique<FuncCallAST>(std::move(expr), Args);
@@ -233,27 +246,24 @@ std::unique_ptr<ExprAST> Parser::ParseAssign(std::unique_ptr<ExprAST>& expr) {
 }
 
 std::unique_ptr<ExprAST> Parser::ParsePrefix(std::unique_ptr<ExprAST> expr) {
-	std::cout << "PARSING PREFIX" << std::endl;
-	
 	// '(' exp ')'
-	if (GetCurrentToken() == '(' && expr == nullptr) {
+	/*if (GetCurrentToken() == '(' && expr == nullptr) {
 		GetNextToken(); // eat '('
 		
-		auto pre = Parser::ParsePrefix(std::move(expr));
-		if (GetCurrentToken() != ')') {
-			return ExprLogError("Expected ')'");
-		} else return std::move(pre);
-	}
+		//auto pre = Parser::ParsePrefix(std::move(expr));
+		auto pre = Parser::ParsePrimary();
+		return std::move(pre);
+	}*/
 	
-	std::unique_ptr<ExprAST> var;
+	std::unique_ptr<ExprAST> var, temp;
 	if (!expr)
 		var = ParseVariable();
 	else
 		var = std::move(expr);
-	switch (GetNextToken()) {
+	switch (GetCurrentToken()) {
 	// funccall
 	case '(':
-		return ParsePrefix(ParseFuncCall( var ));
+		return ParsePrefix(ParseFuncCall(var));
 	// var ::= Name | prefixexp ‘[‘ exp ‘]’ | prefixexp ‘.’ Name
 	case '[':
 		break;
@@ -268,46 +278,33 @@ std::unique_ptr<ExprAST> Parser::ParsePrefix(std::unique_ptr<ExprAST> expr) {
 
 
 std::unique_ptr<ExprAST> Parser::ParseVariable() {
-	return std::move(std::make_unique<VariableAST>(lex->IdName));
+	auto var = std::make_unique<VariableAST>(lex->IdName);
+	GetNextToken(); // eat var identifier
+	return std::move(var);
 }
 		
 std::unique_ptr<ExprAST> Parser::ParseBinopRHS(int ExprPrec, std::unique_ptr<ExprAST> LHS) {
 	while (1) {
-		std::cout << "BINOP: " << GetCurrentToken() << std::endl;
-		
-		//if (GetCurrentToken() == TOK_EOF) return std::move(LHS);
-		
-		//std::cout << "1" << std::endl;
 		int TokPrec = GetTokenPrecedence();
-		std::cout << "TokPrec: " << TokPrec << std::endl;
 		
 		if (TokPrec < ExprPrec) {
-			std::cout << "mad " << LHS.get() << std::endl;
 			return std::move(LHS);
 		}
-			
-		//std::cout << "2" << std::endl;
 			
 		OPERATORS Binop = lex->Operator;
 		GetNextToken(); // eat binop
 		
-		//std::cout << "3" << std::endl;
-		
 		auto RHS = ParsePrimary();
-		if (!RHS) { std::cout << "RHS fucked" << std::endl; return nullptr; }
+		if (!RHS) return nullptr;
 		
 		int NextPrec = GetTokenPrecedence();
 		
-		//std::cout << "4" << std::endl;
-		
 		if (TokPrec < NextPrec) {
 			RHS = ParseBinopRHS(TokPrec + 1, std::move(RHS));
-			if (!RHS) { std::cout << "RHS fucked" << std::endl; return nullptr; }
+			if (!RHS) return nullptr;
 		}
 		
 		LHS = std::make_unique<BinaryExprAST>(std::move(LHS), std::move(RHS), Binop);
-		
-		std::cout << ":-)" << std::endl;
 	}
 }
 
@@ -320,7 +317,11 @@ std::unique_ptr<ExprAST> Parser::ParsePostUnopExpr() {
 }
 		
 std::unique_ptr<ExprAST> Parser::ParseNumber() {
-	auto result = std::make_unique<NumberAST>( (lex->IsInt ? lex->IntVal : lex->DoubleVal) );
+	std::unique_ptr<ExprAST> result;
+	if (lex->IsInt)
+		result = std::make_unique<NumberAST>( lex->IntVal );
+	else
+		result = std::make_unique<NumberAST>( lex->DoubleVal );
 	GetNextToken();
 	return std::move(result);
 }

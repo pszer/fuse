@@ -12,9 +12,7 @@ const ExprAST * FunctionAST::GetBody() {
 }
 
 std::shared_ptr<Fuse::Object> FunctionAST::Call(std::vector< std::shared_ptr<Object> >& call_args) {
-	std::cout << "Function at address : " << (std::size_t)Body.get() << " was called" << std::endl;
 	if (Args.size() != call_args.size()) {
-		std::cout << "Invalid amount of arguments" << std::endl;
 		return nullptr;
 	}
 	

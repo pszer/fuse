@@ -17,7 +17,7 @@ namespace Fuse {
 	
 	enum VAR_SET_STATE { SUCCESS , ERROR };
 	
-	extern struct Core{
+	extern struct Core {
 	public:
 		Core();
 		
@@ -29,6 +29,7 @@ namespace Fuse {
 		std::shared_ptr<Fuse::Object>* CreateVariable(const std::string& var_name, std::shared_ptr<Fuse::Object> obj);
 		
 		std::unique_ptr<ExprAST> Parse();
+		int Load(void (*handle)(std::shared_ptr<Object>) = nullptr);
 		
 		Parser _Parser;
 		Lexer _Lexer;

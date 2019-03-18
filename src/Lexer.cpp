@@ -36,10 +36,13 @@ std::string Lexer::TokenToString(int tok) {
 	}
 }
 
-int Lexer::SetReader(std::stringstream& _stream) {
-	stream.flush();
-	stream.clear();
-	stream = std::move(_stream);
+int Lexer::SetReader(std::istream* _stream) {
+	if (!_stream) return -1;
+	
+	if (stream) {
+		stream->clear();
+	}
+	stream = _stream;
 	stream_set = true;
 	line = 1;
 	char_count = 0;
@@ -47,7 +50,7 @@ int Lexer::SetReader(std::stringstream& _stream) {
 	NextChar();
 	
 	// if stream is empty return error
-	if (stream.eof()) {
+	if (stream->eof()) {
 		stream_set = false;
 		return -1;
 	}
@@ -55,8 +58,26 @@ int Lexer::SetReader(std::stringstream& _stream) {
 	return 0;
 }
 
+void Lexer::SetOut(std::ostream* _ostream, std::string str) {
+	text_prefix = str;
+	ostream = _ostream;
+	
+	PrintTextPrefix();
+}
+
+void Lexer::PrintTextPrefix() {
+	if (ostream == nullptr) return;
+	*ostream << text_prefix << (char)8 << std::flush;
+}
+
 bool Lexer::IsStreamSet() {
 	return stream_set;
+}
+
+bool Lexer::IsStreamEOF() {
+	if (stream == nullptr)
+		return true;
+	return stream->eof();
 }
 
 int Lexer::GetLineCount() {
@@ -68,7 +89,7 @@ int Lexer::GetCharCount() {
 }
 
 inline void Lexer::NextChar() {
-	C = stream.get();
+	C = stream->get();
 	++char_count;
 }
 
@@ -92,11 +113,12 @@ int Lexer::GetNextToken() {
 }
 
 int Lexer::Next() {
-	if (stream.eof()) return TOK_EOF;
+	if (stream->eof()) return TOK_EOF;
 	
 	// Ignore whitespaces, if new line increase line counter
 	while (std::isspace(C)) {
 		if (C == '\n') {
+			PrintTextPrefix();
 			line++;
 			char_count = 0;
 		}
@@ -114,7 +136,7 @@ int Lexer::Next() {
 	// '-' is guaranteed to be part of a number if the next char is a number (or a .)
 	// and the previous token is not a number/identifier/close bracket/postfix unary operator (++ and --)
 	if (C == '-') {
-		if ( (std::isdigit(stream.peek()) || (stream.peek() == '.') ) &&
+		if ( (std::isdigit(stream->peek()) || (stream->peek() == '.') ) &&
 		     ((LastToken != TOK_NUMBER) && (LastToken != TOK_IDENTIFIER) && (LastToken != ')')
 		       && (LastToken != ']') && (LastToken != OP_INC) && (LastToken != OP_DEC)) )
 		{
@@ -125,7 +147,7 @@ int Lexer::Next() {
 	// but only when the previous token isn't an identifier
 	// because '.' can be used in "table.member" and
 	// the next character has to be a digit
-	else if (std::isdigit(C) || (C == '.' && LastToken != TOK_IDENTIFIER && std::isdigit(stream.peek()) )) {
+	else if (std::isdigit(C) || (C == '.' && LastToken != TOK_IDENTIFIER && std::isdigit(stream->peek()) )) {
 		return TokenizeNumber();
 	}
 	

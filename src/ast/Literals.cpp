@@ -57,7 +57,6 @@ Eval functions
 */
 
 std::shared_ptr<Fuse::Object> NumberAST::Eval() {
-	std::cout << "num eval" << std::endl;
 	return std::make_shared<Fuse::Number>(INum);
 }
 

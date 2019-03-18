@@ -7,9 +7,10 @@ TypeAST Fuse::BinaryExprAST::GetType() {
 }
 
 std::shared_ptr<Fuse::Object> Fuse::BinaryExprAST::Eval() {
-	std::cout << "BINARY OPERATION" << std::endl;
 	auto LHS_OBJ = LHS->Eval(),
 	     RHS_OBJ = RHS->Eval();
-	if (LHS_OBJ == nullptr || RHS_OBJ == nullptr) std::cout << "whoops" << std::endl;
+	
+	if (LHS_OBJ == nullptr || RHS_OBJ == nullptr)
+		return nullptr;
 	return DoOperation(LHS_OBJ, RHS_OBJ, Operator);
 }

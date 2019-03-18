@@ -9,8 +9,28 @@ Core::Core(): _Parser( Parser(&_Lexer, &Scopes)) {
 }
 
 std::unique_ptr<ExprAST> Core::Parse() {
-	return std::move(_Parser.Parse());
+	return std::move(_Parser.ParseStatement());
 }
+
+int Core::Load(void (*handle)(std::shared_ptr<Object>)) {
+	if (!_Lexer.IsStreamSet()) {
+		return -1;
+	}
+	
+	while (true) {
+		auto stat = _Parser.ParseStatement();
+		if (stat == nullptr) {
+			std::cout << "error" << std::endl;
+			return -1;
+		}
+		
+		auto eval = stat->Eval();
+		if (handle != nullptr)
+			handle(eval);
+	}
+	
+	return 0;
+};
 
 Scope& Core::TopScope() {
 	if (Scopes.empty())

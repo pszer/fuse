@@ -13,7 +13,7 @@ Function* Fuse::Function::Clone() {
 }
 
 std::string Fuse::Function::ToString() {
-	return "function :-)";
+	return "";
 }
 
 const std::vector<std::string>& Fuse::Function::GetArgs() {

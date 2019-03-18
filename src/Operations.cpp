@@ -7,9 +7,7 @@ using namespace Fuse;
 //std::vector<Operation> Fuse::Operations[OP_COUNT];
 
 Operation_Func Fuse::GetOperation(Type a, Type b, OPERATORS op) {
-	std::cout << "Gettin that " << a << " " << b << " " << op << std::endl;
 	for (auto entry : Core.Operations[(int)op]) {
-		std::cout << "Checking entry" << std::endl;
 		if (entry.a == a && entry.b == b) {
 			return entry.func;
 		}
@@ -19,9 +17,8 @@ Operation_Func Fuse::GetOperation(Type a, Type b, OPERATORS op) {
 }
 
 std::shared_ptr<Object> Fuse::DoOperation(std::shared_ptr<Object> a, std::shared_ptr<Object> b, OPERATORS op) {
-	std::cout << "Gettin that doing operation" << std::endl;
 	auto func = GetOperation(a->GetType(), b->GetType(), op);
-	if (func == nullptr) { std::cout << "SHIT" << std::endl; return nullptr; }
+	if (func == nullptr) return nullptr;
 	
 	return (*func)(a, b);
 }
