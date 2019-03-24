@@ -24,7 +24,6 @@ int Core::Load(void (*handle)(std::shared_ptr<Object>)) {
 		
 		auto stat = _Parser.ParseStatement();
 		if (stat == nullptr) {
-			std::cout << "Exitting on error" << std::endl;
 			return -1;
 		}
 		

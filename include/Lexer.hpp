@@ -42,23 +42,23 @@ namespace Fuse {
 		OP_EQUAL,
 		OP_ADD, OP_SUB, OP_MULT, OP_DIV, OP_MODULO,
 		
-		OP_COMP_EQUAL, OP_COMP_LESS, OP_COMP_GREATER, OP_COMP_LESS_EQUAL, OP_COMP_GREATER_EQUAL,
+		OP_COMP_EQUAL, OP_COMP_UNEQUAL, OP_COMP_LESS, OP_COMP_GREATER, OP_COMP_LESS_EQUAL, OP_COMP_GREATER_EQUAL,
 		OP_AND, OP_OR,
 		
 		OP_INC, OP_DEC, OP_NEGATE, OP_NOT
 	};
-	const int OP_COUNT = 17;
+	const int OP_COUNT = 18;
 	// e.g. op_str[OP_AND] == "&&"
 	const std::string op_str[] = {
 		"=",
 		"+", "-", "*", "/", "%",
-		"==", "<", ">", "<=", ">=",
+		"==", "!=", "<", ">", "<=", ">=",
 		"&&", "||",
 		"++", "--", "-", "!"
 	};
 	
 	const std::string emit_chars = ";().";
-	const std::string op_chars = "=+-*/%<>&|";
+	const std::string op_chars = "=+-*/%<>&|!";
 	
 	enum { NO_TOK_HELD = 0xffffffff };
 	struct Lexer {

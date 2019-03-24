@@ -81,6 +81,8 @@ std::unique_ptr<ExprAST> Parser::ParsePrimary() {
 		return ParseIfElse();
 	case TOK_IDENTIFIER:
 		return ParseIdentifier();
+	case TOK_WHILE:
+		return ParseWhile();
 	case '{':
 		return ParseBlock();
 	case '(':
@@ -278,7 +280,7 @@ std::unique_ptr<ExprAST> Parser::ParseIfElse() {
 		return StatLogError("Expected '(' for if-statement condition");
 	} else GetNextToken(); // eat '('
 	
-	auto cond = ParseExpression();
+	auto cond = ParseStrictExpression();
 	if (cond == nullptr) return nullptr;
 	
 	if (GetCurrentToken() != ')') {
@@ -301,8 +303,24 @@ std::unique_ptr<ExprAST> Parser::ParseIfElse() {
 	}
 }
 
-std::unique_ptr<ExprAST> ParseWhile() {
-	return nullptr;
+std::unique_ptr<ExprAST> Parser::ParseWhile() {
+	GetNextToken(); // eat 'while'
+	
+	if (GetCurrentToken() != '(')
+		return StatLogError("Expected '(' after while");
+	GetNextToken(); // eat '('
+	
+	auto cond = ParseStrictExpression();
+	if (cond == nullptr) return nullptr;
+	
+	if (GetCurrentToken() != ')')
+		return StatLogError("Expected ')' at the end of a while condition");
+	GetNextToken(); // eat ')'
+	
+	auto body = ParseExpression();
+	if (body == nullptr) return nullptr;
+	
+	return std::make_unique<WhileAST>(std::move(cond), std::move(body));
 }
 
 std::unique_ptr<ExprAST> Parser::ParseAssign(std::unique_ptr<ExprAST>& expr) {
@@ -377,11 +395,11 @@ std::unique_ptr<ExprAST> Parser::ParseBinopRHS(int ExprPrec, std::unique_ptr<Exp
 }
 
 std::unique_ptr<ExprAST> Parser::ParsePreUnopExpr() {
-	
+	return nullptr;
 }
 
 std::unique_ptr<ExprAST> Parser::ParsePostUnopExpr() {
-	
+	return nullptr;
 }
 		
 std::unique_ptr<ExprAST> Parser::ParseNumber() {
