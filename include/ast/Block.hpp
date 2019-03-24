@@ -17,7 +17,6 @@ namespace Fuse {
 		TypeAST GetType();
 	private:
 		std::vector<std::unique_ptr<ExprAST> > Statements;
-		TypeAST type = NODE_BLOCK;
 	};
 
 	class ReturnAST : public ExprAST {
@@ -31,7 +30,6 @@ namespace Fuse {
 		TypeAST GetType();
 	private:
 		std::unique_ptr<ExprAST> Expr;
-		TypeAST type = NODE_RETURN;
 	};
 	
 };

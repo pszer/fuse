@@ -10,11 +10,15 @@ Type Fuse::Table::GetType() {
 
 
 std::string Fuse::Table::ToString() {
-	return "{table}";
+	std::string result = "";
+	for (auto entry : data) {
+		result += entry->ToString() + " ";
+	}
+	return result;
 }
 
 void Fuse::Table::AddEntry(Object* obj) {
-	auto p = std::shared_ptr<Object> ( Fuse::Clone(obj) );
+	auto p = std::shared_ptr<Object> ( obj->Clone() );
 	data.push_back( p );
 }
 
@@ -23,7 +27,7 @@ std::size_t Fuse::Table::Count() {
 }
 
 void Fuse::Table::AddKey(Object* obj, const std::string& key) {
-	auto p = std::shared_ptr<Object> ( Fuse::Clone(obj) );
+	auto p = std::shared_ptr<Object> ( obj->Clone() );
 	data.push_back( p );
 	dict[key] = p;
 }
@@ -78,4 +82,8 @@ Table* Fuse::Table::Clone() {
 	}
 	
 	return t;
+}
+
+bool Fuse::Table::IsTrue() {
+	return !data.empty();
 }

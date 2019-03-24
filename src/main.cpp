@@ -8,7 +8,7 @@
 void Print(std::shared_ptr<Fuse::Object>);
 
 int main(int argc, char** argv) {
-	std::cout << "Fuse test interpreter\n::~ VERSION 69.420.1337.0000000000001" << std::endl;
+	std::cout << "Fuse test interpreter\nReady." << std::endl;
 	
 	Fuse::Core._Lexer.SetOut(&std::cerr, "> ");
 	Fuse::Core._Lexer.SetReader(&std::cin);

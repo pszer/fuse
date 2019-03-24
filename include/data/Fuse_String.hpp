@@ -17,6 +17,7 @@ namespace Fuse {
 		std::string& Str(); // returns reference to str
 		
 		std::string ToString();
+		bool IsTrue();
 	private:
 		std::string str = "";
 	};

@@ -30,6 +30,7 @@ namespace Fuse {
 		
 		void AddEntry(Object*);
 		void AddKey(Object*, const std::string& key);
+		bool IsTrue();
 	private:
 		std::vector< std::shared_ptr<Object> > data;
 		std::map< std::string , std::shared_ptr<Object> > dict;

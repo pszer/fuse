@@ -23,3 +23,9 @@ std::string Fuse::Number::ToString() {
 		return std::to_string(val.INT);
 	else return std::to_string(val.DOUBLE);
 }
+
+bool Fuse::Number::IsTrue() {
+	if (val.type == INT)
+		return val.INT;
+	return val.DOUBLE;
+}

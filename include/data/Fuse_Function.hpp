@@ -17,6 +17,7 @@ namespace Fuse {
 		std::string ToString();
 		
 		std::shared_ptr<Fuse::Object> Call(std::vector< std::shared_ptr<Object> >& call_args);
+		bool IsTrue();
 	private:
 		std::shared_ptr<FunctionAST> Func = nullptr;
 	};

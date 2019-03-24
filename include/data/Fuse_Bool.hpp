@@ -15,6 +15,7 @@ namespace Fuse {
 		bool& Value();
 		
 		std::string ToString();
+		bool IsTrue();
 	private:
 		Type type = TYPE_BOOL;
 		bool val = false;

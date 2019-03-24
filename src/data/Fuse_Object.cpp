@@ -8,31 +8,6 @@
 
 using namespace Fuse;
 
-Object* Fuse::Clone(Object* o) {
-	switch (o->GetType()) {
-	case TYPE_NUMBER:
-		return (Object*) ((Fuse::Number*)o)->Clone();
-	case TYPE_STRING:
-		return (Object*) ((Fuse::String*)o)->Clone();
-	case TYPE_BOOL:
-		return (Object*) ((Fuse::Bool*)o)->Clone();
-	case TYPE_NULL:
-		return (Object*) ((Fuse::Null*)o)->Clone();
-	case TYPE_TABLE:
-		return (Object*) ((Fuse::Table*)o)->Clone();
-	case TYPE_FUNCTION:
-		return (Object*) ((Fuse::Function*)o)->Clone();
-	case TYPE_OBJECT:
-		return o->Clone();
-	default:
-		return nullptr;
-	}
-}
-
-Object* Fuse::Clone(std::shared_ptr<Object> o) {
-	return Clone(o.get());
-}
-
 Type Fuse::Object::GetType() {
 	return TYPE_OBJECT;
 }
@@ -43,6 +18,10 @@ Object* Fuse::Object::Clone() {
 
 std::string Fuse::Object::ToString() {
 	return "";
+}
+
+bool Fuse::Object::IsTrue() {
+	return false;
 }
 
 // null
@@ -60,4 +39,8 @@ Null* Null::Clone() {
 
 std::string Null::ToString() {
 	return "null";
+}
+
+bool Fuse::Null::IsTrue() {
+	return false;
 }

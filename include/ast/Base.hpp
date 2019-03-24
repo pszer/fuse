@@ -78,7 +78,7 @@ namespace Fuse {
 		NODE_IF_ELSE, NODE_WHILE, NODE_DO,
 		NODE_FOR, NODE_SWITCH,
 		
-		NODE_FUNC_DEF,  NODE_TABLE_DEF
+		NODE_FUNC_DEF,  NODE_TABLE_DEF , NODE_TABLE_ACCESS
 	};
 	
 	
@@ -122,5 +122,12 @@ namespace Fuse {
 	private:
 		std::vector<std::string> Args;
 		std::unique_ptr<ExprAST> Body;
+	};
+	
+	class VoidAST : public ExprAST {
+	public:
+		VoidAST() { ; }
+		std::shared_ptr<Fuse::Object> Eval();
+		TypeAST GetType();
 	};
 }

@@ -21,6 +21,7 @@ namespace Fuse {
 		virtual Object* Clone();   // returns nullptr
 		
 		virtual std::string ToString();
+		virtual bool IsTrue();
 	private:
 	};
 	
@@ -30,10 +31,9 @@ namespace Fuse {
 		std::string ToString();
 		
 		Type GetType();
+		bool IsTrue();
 	};
 
-	Object* Clone(Object* );
-	Object* Clone(std::shared_ptr<Object> );
 };
 
 #include "data/Fuse_Object.hpp"

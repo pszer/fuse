@@ -11,3 +11,7 @@
 #include "ast/BinaryExpr.hpp"
 #include "ast/Assign.hpp"
 #include "ast/FuncCall.hpp"
+#include "ast/IfElse.hpp"
+#include "ast/TableConstructor.hpp"
+#include "ast/TableAccess.hpp"
+#include "ast/While.hpp"

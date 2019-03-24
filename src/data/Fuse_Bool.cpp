@@ -22,3 +22,7 @@ std::string Fuse::Bool::ToString() {
 	if (val) return "true";
 	else return "false";
 }
+
+bool Fuse::Bool::IsTrue() {
+	return val;
+}

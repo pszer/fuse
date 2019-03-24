@@ -14,17 +14,21 @@ namespace Fuse {
 		Parser(Fuse::Lexer* _l, VariableScopes* _scopes): lex(_l) { ; }
 		
 		std::unique_ptr<ExprAST> ParseStatement();
-	private:
+		
 		int GetNextToken();
+		void PutBackToken();
 		int GetCurrentToken();
 		int CurrTok;
+	private:
 	
 		std::unique_ptr<ExprAST> StatLogError(const std::string& );
 		std::unique_ptr<ExprAST> ExprLogError(const std::string& );
 		void LogWarning(const std::string&);
 	
 		std::unique_ptr<ExprAST> ParseExpression();
+		std::unique_ptr<ExprAST> ParseStrictExpression();
 		std::unique_ptr<ExprAST> ParsePrimary();
+		std::unique_ptr<ExprAST> ParseStrictExprPrimary();
 		std::unique_ptr<ExprAST> ParseParenExpr();
 		
 		std::unique_ptr<ExprAST> ParseFuncDef();
@@ -35,6 +39,9 @@ namespace Fuse {
 		std::unique_ptr<ExprAST> ParseIdentifier();
 		std::unique_ptr<ExprAST> ParseFuncCall(std::unique_ptr<ExprAST>& expr);
 		std::unique_ptr<ExprAST> ParseAssign(std::unique_ptr<ExprAST>& expr);
+		
+		std::unique_ptr<ExprAST> ParseIfElse();
+		std::unique_ptr<ExprAST> ParseWhile();
 		
 		std::unique_ptr<ExprAST> ParseBinopRHS(int ExprPrec, std::unique_ptr<ExprAST> LHS);
 		
@@ -47,6 +54,10 @@ namespace Fuse {
 		std::unique_ptr<ExprAST> ParseNumber();
 		std::unique_ptr<ExprAST> ParseString();
 		std::unique_ptr<ExprAST> ParseBoolean();
+		
+		std::unique_ptr<ExprAST> ParseTableConstructor();
+		std::unique_ptr<ExprAST> ParseTableAccess(std::unique_ptr<ExprAST>& expr);
+		std::unique_ptr<ExprAST> ParseMemberAccess(std::unique_ptr<ExprAST>& expr);
 			
 		Fuse::Lexer* lex;
 		

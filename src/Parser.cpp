@@ -44,29 +44,28 @@ bool Parser::IsPrefixOp(OPERATORS op) {
 
 int Parser::GetNextToken() { return CurrTok = lex->GetNextToken(); }
 int Parser::GetCurrentToken() { return CurrTok; }
+void Parser::PutBackToken() { ; lex->PutBackToken(); }
 
 std::unique_ptr<ExprAST> Parser::ParseExpression() {
 	//std::cout << "parsing expr" << std::endl;
 	auto LHS = ParsePrimary();
 	if (!LHS) return nullptr;
 	
-	return ParseBinopRHS(0, std::move(LHS));
+	auto Binop = ParseBinopRHS(0, std::move(LHS));
+	return std::move(Binop);
+}
+
+std::unique_ptr<ExprAST> Parser::ParseStrictExpression() {
+		//std::cout << "parsing expr" << std::endl;
+	auto LHS = ParseStrictExprPrimary();
+	if (!LHS) return nullptr;
+	
+	auto Binop = ParseBinopRHS(0, std::move(LHS));
+	return std::move(Binop);
 }
 
 std::unique_ptr<ExprAST> Parser::ParsePrimary() {
-	//std::cout << "Parsing statement" << std::endl;
-	//std::cout << GetCurrentToken() << std::endl;
-	std::unique_ptr<ExprAST> id;
 	switch (GetCurrentToken()) {
-	case TOK_FUNCTION:
-		return ParseFuncDef();
-	case TOK_RETURN:
-		return ParseReturn();
-	case TOK_IDENTIFIER:
-		id = ParseIdentifier();
-		return std::move(id);
-	case '{':
-		return ParseBlock();
 	case TOK_STRING:
 		return ParseString();
 	case TOK_TRUE:
@@ -74,10 +73,44 @@ std::unique_ptr<ExprAST> Parser::ParsePrimary() {
 		return ParseBoolean();
 	case TOK_NUMBER:
 		return ParseNumber();
+	case TOK_FUNCTION:
+		return ParseFuncDef();
+	case TOK_RETURN:
+		return ParseReturn();
+	case TOK_IF:
+		return ParseIfElse();
+	case TOK_IDENTIFIER:
+		return ParseIdentifier();
+	case '{':
+		return ParseBlock();
 	case '(':
 		return ParseParenExpr();
 	case ';':
-		return nullptr;
+		return std::make_unique<VoidAST>();
+	default:
+		return StatLogError("Invalid statement");
+	}
+}
+
+std::unique_ptr<ExprAST> Parser::ParseStrictExprPrimary() {
+	switch (GetCurrentToken()) {
+	case TOK_STRING:
+		return ParseString();
+	case TOK_TRUE:
+	case TOK_FALSE:
+		return ParseBoolean();
+	case TOK_NUMBER:
+		return ParseNumber();
+	case TOK_FUNCTION:
+		return ParseLambdaDef();
+	case TOK_IDENTIFIER:
+		return ParseIdentifier();
+	case '{':
+		return ParseTableConstructor();
+	case '(':
+		return ParseParenExpr();
+	case ';':
+		return std::make_unique<VoidAST>();
 	default:
 		return StatLogError("Invalid statement");
 	}
@@ -170,6 +203,7 @@ std::unique_ptr<ExprAST> Parser::ParseLambdaDef() {
 	
 	auto Body = Parser::ParseExpression();
 	auto Func = std::make_shared<FunctionAST> (Args, std::move(Body));
+	GetNextToken();
 	
 	return std::move( std::make_unique<FuncDefExprAST>(Func) );
 }
@@ -185,9 +219,9 @@ std::unique_ptr<ExprAST> Parser::ParseBlock() {
 		auto stat = ParseExpression();
 		if (stat == nullptr) return nullptr;
 		Stats.push_back( std::move(stat) );
+		
+		GetNextToken();
 	}
-	
-	GetNextToken(); // eat '}'
 	
 	return std::move( std::make_unique<BlockAST>(Stats) );
 }
@@ -237,9 +271,43 @@ std::unique_ptr<ExprAST> Parser::ParseFuncCall(std::unique_ptr<ExprAST>& expr) {
 	return std::make_unique<FuncCallAST>(std::move(expr), Args);
 }
 
+std::unique_ptr<ExprAST> Parser::ParseIfElse() {
+	GetNextToken(); // eat 'if'
+	
+	if (GetCurrentToken() != '(') {
+		return StatLogError("Expected '(' for if-statement condition");
+	} else GetNextToken(); // eat '('
+	
+	auto cond = ParseExpression();
+	if (cond == nullptr) return nullptr;
+	
+	if (GetCurrentToken() != ')') {
+		return StatLogError("Expected ')' at the end of an if-statement condition");
+	} else GetNextToken(); // eat ')'
+	
+	auto body = ParseExpression();
+	if (body == nullptr) return nullptr;
+	GetNextToken();
+	
+	if (GetCurrentToken() == TOK_ELSE) {
+		GetNextToken(); // eat 'else'
+		auto else_body = ParseExpression();
+		if (else_body == nullptr) return nullptr;
+		return std::make_unique<IfElseAST>(std::move(cond), std::move(body), std::move(else_body));
+	} else {
+		PutBackToken();
+		auto ifelse = std::make_unique<IfElseAST>(std::move(cond), std::move(body));
+		return std::move(ifelse);
+	}
+}
+
+std::unique_ptr<ExprAST> ParseWhile() {
+	return nullptr;
+}
+
 std::unique_ptr<ExprAST> Parser::ParseAssign(std::unique_ptr<ExprAST>& expr) {
 	GetNextToken(); // eat '='
-	auto RHS = ParseExpression();
+	auto RHS = ParseStrictExpression();
 	if (RHS == nullptr) return nullptr;
 	
 	return std::make_unique<AssignAST>(std::move(expr), std::move(RHS));
@@ -266,9 +334,9 @@ std::unique_ptr<ExprAST> Parser::ParsePrefix(std::unique_ptr<ExprAST> expr) {
 		return ParsePrefix(ParseFuncCall(var));
 	// var ::= Name | prefixexp ‘[‘ exp ‘]’ | prefixexp ‘.’ Name
 	case '[':
-		break;
+		return ParsePrefix(ParseTableAccess(var));
 	case '.':
-		break;
+		return ParsePrefix(ParseMemberAccess(var));
 	default:
 		return std::move(var);
 	}
@@ -333,9 +401,72 @@ std::unique_ptr<ExprAST> Parser::ParseString() {
 }
 
 std::unique_ptr<ExprAST> Parser::ParseBoolean() {
-	if (GetCurrentToken() == TOK_FALSE) {
-		return std::move( std::make_unique<BoolAST>(false) );
-	} else {
-		return std::move( std::make_unique<BoolAST>(true) );
+	std::unique_ptr<BoolAST> bool_ast;
+	if (GetCurrentToken() == TOK_FALSE)
+		bool_ast = std::make_unique<BoolAST>(false);
+	else
+		bool_ast = std::make_unique<BoolAST>(true);
+	GetNextToken(); // eat 'true'/'false'
+		
+	return bool_ast;
+}
+
+std::unique_ptr<ExprAST> Parser::ParseTableConstructor() {
+	GetNextToken(); // eat '{'
+	
+	std::vector<TableConstructEntry> table;
+	while (true) {
+		if (GetCurrentToken() == '}') {
+			break;
+		}
+		
+		auto expr = ParseStrictExpression();
+		if (expr == nullptr) return nullptr;
+		
+		if (GetCurrentToken() == ':') {
+			GetNextToken(); // eat '='
+			
+			auto expr2 = ParseStrictExpression();
+			if (expr2 == nullptr) return nullptr;
+			
+			table.emplace_back(std::move(expr), std::move(expr2));
+		} else {
+			table.emplace_back(std::move(expr));
+		}
+		
+		if (GetCurrentToken() != ',' && GetCurrentToken() != '}') {
+			return ExprLogError("Expected ',' or '}' in table constructor");
+		} else if (GetCurrentToken() == ',') {
+			GetNextToken();
+		}
 	}
+	
+	auto t_expr = std::make_unique<TableConstructorAST>(table);
+	GetNextToken(); // eat '}'
+	return std::move(t_expr);
+}
+
+std::unique_ptr<ExprAST> Parser::ParseTableAccess(std::unique_ptr<ExprAST>& expr) {
+	GetNextToken(); // eat '['
+	auto access = ParseExpression();
+	if (access == nullptr) return nullptr;
+	
+	if (GetCurrentToken() != ']') {
+		return ExprLogError("']' expected for table access");
+	}
+	
+	GetNextToken(); // eat ']'
+	return std::make_unique<TableAccessAST>(std::move(expr), std::move(access));
+}
+
+std::unique_ptr<ExprAST> Parser::ParseMemberAccess(std::unique_ptr<ExprAST>& expr) {
+	GetNextToken();
+	if (GetCurrentToken() != TOK_IDENTIFIER) {
+		return ExprLogError("Table access using '.' expects an identifier");
+	}
+	
+	std::string id = lex->IdName;
+	auto str = std::make_unique<StringAST>(id);
+	GetNextToken();
+	return std::make_unique<TableAccessAST>(std::move(expr), std::move(str));
 }

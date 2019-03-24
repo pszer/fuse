@@ -67,7 +67,7 @@ void Lexer::SetOut(std::ostream* _ostream, std::string str) {
 
 void Lexer::PrintTextPrefix() {
 	if (ostream == nullptr) return;
-	*ostream << text_prefix << (char)8 << std::flush;
+	*ostream << text_prefix << std::flush;
 }
 
 bool Lexer::IsStreamSet() {
@@ -77,7 +77,13 @@ bool Lexer::IsStreamSet() {
 bool Lexer::IsStreamEOF() {
 	if (stream == nullptr)
 		return true;
-	return stream->eof();
+	return LastToken == TOK_EOF;
+}
+
+bool Lexer::IsPosEOF() {
+	if (IsStreamEOF()) return true;
+	if (stream->peek() == EOF) return true;
+	return false;
 }
 
 int Lexer::GetLineCount() {
@@ -108,8 +114,17 @@ inline bool OperatorChar(char  c) {
 
 
 int Lexer::GetNextToken() {
+	if (HeldToken != NO_TOK_HELD) {
+		int held = HeldToken;
+		HeldToken = NO_TOK_HELD;
+		return held;
+	}
 	LastToken = Next();
 	return LastToken;
+}
+
+int Lexer::PutBackToken() {
+	HeldToken = LastToken;
 }
 
 int Lexer::Next() {

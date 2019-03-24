@@ -23,3 +23,11 @@ std::shared_ptr<Fuse::Object> FunctionAST::Call(std::vector< std::shared_ptr<Obj
 	if (Body == nullptr) return nullptr;
 	return Body->Eval();
 }
+
+std::shared_ptr<Object> Fuse::VoidAST::Eval() {
+	return nullptr;
+}
+
+TypeAST Fuse::VoidAST::GetType() {
+	return NODE_NULL;
+}

@@ -18,9 +18,13 @@ int Core::Load(void (*handle)(std::shared_ptr<Object>)) {
 	}
 	
 	while (true) {
+		if (_Lexer.IsStreamEOF()) {
+			break;
+		}
+		
 		auto stat = _Parser.ParseStatement();
 		if (stat == nullptr) {
-			std::cout << "error" << std::endl;
+			std::cout << "Exitting on error" << std::endl;
 			return -1;
 		}
 		

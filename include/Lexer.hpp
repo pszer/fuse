@@ -60,16 +60,20 @@ namespace Fuse {
 	const std::string emit_chars = ";().";
 	const std::string op_chars = "=+-*/%<>&|";
 	
+	enum { NO_TOK_HELD = 0xffffffff };
 	struct Lexer {
 		// MOVES stream into the lexer (_stream becomes invalid)
 		// returns -1 if stream is empty (error), otherwise 0
 		int SetReader(std::istream* _stream);
 		void SetOut(std::ostream* _ostream, std::string str = "> ");
 		int GetNextToken(); // returns next token
+		int PutBackToken();
 		bool IsStreamSet(); // returns stream_set
 		bool IsStreamEOF(); // returns stream->eof()
+		bool IsPosEOF();
 		
 		int LastToken;
+		int HeldToken = NO_TOK_HELD;
 		
 		// if number token is an integer, IsInt is true
 		// otherwise the number token is a double and

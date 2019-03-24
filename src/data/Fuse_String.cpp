@@ -21,3 +21,7 @@ std::string& Fuse::String::Str() {
 std::string Fuse::String::ToString() {
 	return str;
 }
+
+bool Fuse::String::IsTrue() {
+	return !str.empty();
+}
