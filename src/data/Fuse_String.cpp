@@ -8,10 +8,8 @@ Type Fuse::String::GetType() {
 	return TYPE_STRING;
 }
 
-String* Fuse::String::Clone() {
-	auto n = new String();
-	*n = *this;
-	return n;
+std::shared_ptr<Object> Fuse::String::Clone() {
+	return std::make_shared<String>(str);
 }
 
 std::string& Fuse::String::Str() {

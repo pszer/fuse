@@ -6,10 +6,8 @@ Type Fuse::Function::GetType() {
 	return TYPE_FUNCTION;
 }
 
-Function* Fuse::Function::Clone() {
-	auto n = new Function();
-	*n = *this;
-	return n;
+std::shared_ptr<Object> Fuse::Function::Clone() {
+	return std::make_shared<Function>(Func);
 }
 
 std::string Fuse::Function::ToString() {

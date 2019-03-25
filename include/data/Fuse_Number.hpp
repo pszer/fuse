@@ -31,7 +31,7 @@ namespace Fuse {
 		Number(long long _long): val(_long) { ; }
 		Number(double _double): val(_double) { ; }
 		Number(INumber _inum): val(_inum) { ; }
-		Number* Clone();
+		std::shared_ptr<Object> Clone();
 		
 		Type GetType();
 		

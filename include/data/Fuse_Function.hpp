@@ -11,7 +11,7 @@ namespace Fuse {
 		
 		Type GetType();
 		
-		Function* Clone();
+		std::shared_ptr<Object> Clone();
 		
 		const std::vector<std::string>& GetArgs();
 		std::string ToString();

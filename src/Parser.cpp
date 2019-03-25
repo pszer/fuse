@@ -83,12 +83,20 @@ std::unique_ptr<ExprAST> Parser::ParsePrimary() {
 		return ParseIdentifier();
 	case TOK_WHILE:
 		return ParseWhile();
+	case TOK_FOR:
+		return ParseFor();
+	case TOK_BREAK:
+		return ParseBreak();
+	case TOK_CONTINUE:
+		return ParseContinue();
 	case '{':
 		return ParseBlock();
 	case '(':
 		return ParseParenExpr();
 	case ';':
 		return std::make_unique<VoidAST>();
+	case TOK_EOF:
+		return nullptr;
 	default:
 		return StatLogError("Invalid statement");
 	}
@@ -191,7 +199,9 @@ std::unique_ptr<ExprAST> Parser::ParseLambdaDef() {
 		if (GetCurrentToken() == ')') break;
 		
 		if (GetCurrentToken() == TOK_IDENTIFIER) {
-			if (expect_comma) return ExprLogError("Expected ',' before next function argument");
+			if (expect_comma) { 
+				return ExprLogError("Expected ',' before next function argument");
+			}
 			Args.push_back(lex->IdName);
 			expect_comma = true;
 		} else if (expect_comma && (GetCurrentToken() == ',')) {
@@ -230,7 +240,7 @@ std::unique_ptr<ExprAST> Parser::ParseBlock() {
 
 std::unique_ptr<ExprAST> Parser::ParseReturn() {
 	GetNextToken(); // eat 'return' keyword
-	auto Expr = ParseExpression();
+	auto Expr = ParseStrictExpression();
 	if (Expr == nullptr)
 		return nullptr;
 	return std::make_unique<ReturnAST>( Expr );
@@ -263,9 +273,11 @@ std::unique_ptr<ExprAST> Parser::ParseFuncCall(std::unique_ptr<ExprAST>& expr) {
 		
 		if (!first && GetCurrentToken() != ',') {
 			return ExprLogError("Expected ',' in function call arguments");
+		} else if (GetCurrentToken() == ',') {
+			GetNextToken();
 		}
 		
-		auto arg = ParseExpression();
+		auto arg = ParseStrictExpression();
 		Args.push_back(std::move(arg));
 		first = false;
 	}
@@ -323,6 +335,34 @@ std::unique_ptr<ExprAST> Parser::ParseWhile() {
 	return std::make_unique<WhileAST>(std::move(cond), std::move(body));
 }
 
+std::unique_ptr<ExprAST> Parser::ParseFor() {
+	std::unique_ptr<ExprAST> assign, cond, step, body;
+	
+	GetNextToken(); // eat 'for'
+	
+	if (GetCurrentToken() != '(')
+		return StatLogError("Expected '(' after 'for'");
+	GetNextToken(); // eat '('
+	
+	assign = ParseStrictExpression();
+	if (assign == nullptr) return nullptr;
+	GetNextToken();
+	
+	cond = ParseStrictExpression();
+	if (cond == nullptr) return nullptr;
+	GetNextToken();
+	
+	step = ParseStrictExpression();
+	if (step == nullptr) return nullptr;
+	
+	if (GetCurrentToken() != ')')
+		return StatLogError("Expected ')' at the end of a for statement definition");
+	GetNextToken(); // eat ')'
+	
+	body = ParseExpression();
+	return std::make_unique<ForAST>(std::move(assign), std::move(cond), std::move(step), std::move(body));
+}
+
 std::unique_ptr<ExprAST> Parser::ParseAssign(std::unique_ptr<ExprAST>& expr) {
 	GetNextToken(); // eat '='
 	auto RHS = ParseStrictExpression();
@@ -364,7 +404,7 @@ std::unique_ptr<ExprAST> Parser::ParsePrefix(std::unique_ptr<ExprAST> expr) {
 
 
 std::unique_ptr<ExprAST> Parser::ParseVariable() {
-	auto var = std::make_unique<VariableAST>(lex->IdName);
+	auto var = std::make_unique<VariableAST>(lex->IdName);	
 	GetNextToken(); // eat var identifier
 	return std::move(var);
 }
@@ -380,7 +420,7 @@ std::unique_ptr<ExprAST> Parser::ParseBinopRHS(int ExprPrec, std::unique_ptr<Exp
 		OPERATORS Binop = lex->Operator;
 		GetNextToken(); // eat binop
 		
-		auto RHS = ParsePrimary();
+		auto RHS = ParseStrictExprPrimary();
 		if (!RHS) return nullptr;
 		
 		int NextPrec = GetTokenPrecedence();
@@ -427,6 +467,16 @@ std::unique_ptr<ExprAST> Parser::ParseBoolean() {
 	GetNextToken(); // eat 'true'/'false'
 		
 	return bool_ast;
+}
+
+std::unique_ptr<ExprAST> Parser::ParseBreak() {
+	GetNextToken(); // eat 'break'
+	return std::make_unique<BreakAST>();
+}
+
+std::unique_ptr<ExprAST> Parser::ParseContinue() {
+	GetNextToken(); // eat 'continue'
+	return std::make_unique<ContinueAST>();
 }
 
 std::unique_ptr<ExprAST> Parser::ParseTableConstructor() {

@@ -11,7 +11,7 @@ namespace Fuse {
 	enum Parser_State { PARSER_SUCCESS , PARSER_WARNING , PARSER_ERROR , PARSER_EOF };
 	
 	struct Parser {
-		Parser(Fuse::Lexer* _l, VariableScopes* _scopes): lex(_l) { ; }
+		Parser(Fuse::Lexer* _l): lex(_l) { ; }
 		
 		std::unique_ptr<ExprAST> ParseStatement();
 		
@@ -42,6 +42,7 @@ namespace Fuse {
 		
 		std::unique_ptr<ExprAST> ParseIfElse();
 		std::unique_ptr<ExprAST> ParseWhile();
+		std::unique_ptr<ExprAST> ParseFor();
 		
 		std::unique_ptr<ExprAST> ParseBinopRHS(int ExprPrec, std::unique_ptr<ExprAST> LHS);
 		
@@ -54,6 +55,9 @@ namespace Fuse {
 		std::unique_ptr<ExprAST> ParseNumber();
 		std::unique_ptr<ExprAST> ParseString();
 		std::unique_ptr<ExprAST> ParseBoolean();
+		
+		std::unique_ptr<ExprAST> ParseBreak();
+		std::unique_ptr<ExprAST> ParseContinue();
 		
 		std::unique_ptr<ExprAST> ParseTableConstructor();
 		std::unique_ptr<ExprAST> ParseTableAccess(std::unique_ptr<ExprAST>& expr);

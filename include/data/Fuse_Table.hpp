@@ -15,13 +15,13 @@ namespace Fuse {
 	
 		Type GetType();
 	
-		Table* Clone(); // returns a clone of the table
+		std::shared_ptr<Object> Clone(); // returns a clone of the table
 		
 		std::string ToString();
 		
 		std::size_t Count();
-		std::shared_ptr<Object> Access(std::size_t index);
-		std::shared_ptr<Object> Access(const std::string& key);
+		std::shared_ptr<Object>* Access(std::size_t index);
+		std::shared_ptr<Object>* Access(const std::string& key);
 		
 		/* Erases element at index or a key, returns 1 for success
 		   0 for error */
@@ -32,8 +32,8 @@ namespace Fuse {
 		void AddKey(Object*, const std::string& key);
 		bool IsTrue();
 	private:
-		std::vector< std::shared_ptr<Object> > data;
-		std::map< std::string , std::shared_ptr<Object> > dict;
+		std::vector< std::shared_ptr< std::shared_ptr<Object> > > data;
+		std::map< std::string , std::shared_ptr< std::shared_ptr<Object> > > dict;
 	};
 
 };

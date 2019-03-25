@@ -8,10 +8,8 @@ Type Fuse::Bool::GetType() {
 	return TYPE_BOOL;
 }
 
-Bool* Fuse::Bool::Clone() {
-	auto n = new Bool();
-	*n = *this;
-	return n;
+std::shared_ptr<Object> Fuse::Bool::Clone() {
+	return std::make_shared<Bool>(val);
 }
 
 bool& Fuse::Bool::Value() {

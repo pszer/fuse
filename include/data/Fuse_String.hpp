@@ -11,7 +11,7 @@ namespace Fuse {
 		
 		Type GetType();
 		
-		String* Clone();
+		std::shared_ptr<Object> Clone();
 		
 		std::size_t Count(); // returns string length
 		std::string& Str(); // returns reference to str

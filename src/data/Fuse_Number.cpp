@@ -8,10 +8,8 @@ Type Fuse::Number::GetType() {
 	return TYPE_NUMBER;
 }
 
-Number* Fuse::Number::Clone() {
-	auto n = new Number();
-	*n = *this;
-	return n;
+std::shared_ptr<Object> Fuse::Number::Clone() {
+	return std::make_shared<Number>(val);
 }
 
 INumber& Fuse::Number::GetNum() {

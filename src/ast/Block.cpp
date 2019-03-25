@@ -20,11 +20,14 @@ TypeAST Fuse::BlockAST::GetType() {
 std::shared_ptr<Fuse::Object> Fuse::BlockAST::Eval() {
 	for (auto STAT = Statements.begin(); STAT != Statements.end(); ++STAT) { 
 		// If return statement
-		if (  (*STAT)->GetType() == NODE_RETURN ) {
+		if ((*STAT)->GetType() == NODE_RETURN) {
 			return (*STAT)->Eval();
 		}
 		
-		(*STAT)->Eval();
+		auto eval = (*STAT)->Eval();
+		if (eval != nullptr && eval->GetType() == TYPE_SIGNAL) {
+			return eval;
+		}
 	}
 	
 	return nullptr;

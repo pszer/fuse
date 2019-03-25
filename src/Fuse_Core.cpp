@@ -4,8 +4,17 @@ using namespace Fuse;
 
 struct Fuse::Core Fuse::Core;
 
-Core::Core(): _Parser( Parser(&_Lexer, &Scopes)) {
+Core::Core(): _Parser( Parser(&_Lexer) ) {
 	InitOperations();
+	IO_Library();
+}
+
+int Core::SetReader(std::istream* _stream) {
+	return _Lexer.SetReader(_stream);
+}
+
+void Core::SetOut(std::ostream* _ostream, std::string str) {
+	return _Lexer.SetOut(_ostream, str);
 }
 
 std::unique_ptr<ExprAST> Core::Parse() {
@@ -35,28 +44,55 @@ int Core::Load(void (*handle)(std::shared_ptr<Object>)) {
 	return 0;
 };
 
+void Core::AddCFunc(const std::string& name, std::shared_ptr<Object> (*Func)(std::vector<std::shared_ptr<Object>>& args), std::vector<Type> ArgTypes) {
+	CreateVariable(name, CreateCFunc(Func, ArgTypes));
+}
+
+std::shared_ptr<Object> Core::CreateCFunc(std::shared_ptr<Object> (*Func)(std::vector<std::shared_ptr<Object>>& args), std::vector<Type> ArgTypes) {
+	return std::make_shared<Function>(std::make_shared<FunctionAST>(Func, ArgTypes));
+}
+
+std::shared_ptr<Object> Fuse::_print(std::vector<std::shared_ptr<Object>>& args) {
+	std::cout << args.at(0)->ToString() << std::endl;
+	return nullptr;
+}
+
+void Core::IO_Library() {
+	auto io = CreateVariable("io", std::make_shared<Table>());
+	auto io_table = dynamic_cast<Table*>(io->get());
+	
+	auto ConsolePrint = CreateCFunc(Fuse::_print, {TYPE_OBJECT});
+	io_table->AddKey(ConsolePrint.get(), "ConsolePrint");
+}
+
 Scope& Core::TopScope() {
-	if (Scopes.empty())
+	if (LocalScope == nullptr)
 		return GlobalScope;
 	else 
-		return Scopes.back();
+		return LocalScope->back();
 }
 
-void Core::EnterScope() {
-	Scopes.emplace_back();
+std::shared_ptr<std::vector<Scope>> Core::EnterScope() {
+	auto old_scope = LocalScope;
+	LocalScope = std::make_shared<std::vector<Scope>>();
+	LocalScope->emplace_back();
+	return old_scope;
 }
 
-void Core::LeaveScope() {
-	if (Scopes.size() > 0) {
-		Scopes.pop_back();
-	}
+std::shared_ptr<std::vector<Scope>> Core::EnterScope(std::shared_ptr<std::vector<Scope>> new_scope) {
+	auto old_scope = LocalScope;
+	LocalScope = new_scope;
+	if (LocalScope != nullptr && LocalScope->empty()) LocalScope->emplace_back();
+	return old_scope;
 }
 
 std::shared_ptr<Fuse::Object>* Core::GetVariable(const std::string& var_name) {
-	for (size_t i = 0; i < Scopes.size(); ++i) {
-		auto scope = Scopes.at(i);
-		auto v = scope.find(var_name);
-		if (v != scope.end()) return &(v->second);
+	if (LocalScope) {
+		for (size_t i = 0; i < LocalScope->size(); ++i) {
+			auto scope = LocalScope->at(i);
+			auto v = scope.find(var_name);
+			if (v != scope.end()) return &(v->second);
+		}
 	}
 	
 	auto v = GlobalScope.find(var_name);
@@ -80,11 +116,17 @@ VAR_SET_STATE Core::SetVariable(const std::string& var_name, std::shared_ptr<Fus
 }
 
 std::shared_ptr<Fuse::Object>* Core::CreateVariable(const std::string& var_name, std::shared_ptr<Fuse::Object> obj) {
-	if (!Scopes.empty()) {
-		Scopes.back()[var_name] = obj;
-		return &Scopes.back()[var_name];
+	if (LocalScope) {
+		LocalScope->back()[var_name] = obj;
+		return &LocalScope->back()[var_name];
 	} else {
 		GlobalScope[var_name] = obj;
 		return &GlobalScope[var_name];
 	}
+}
+
+bool Core::IsVariableLocal(const std::string& str) {
+	auto v = GlobalScope.find(str);
+	if (v != GlobalScope.end()) return false;
+	return true;
 }

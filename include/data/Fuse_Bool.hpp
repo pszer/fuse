@@ -11,7 +11,7 @@ namespace Fuse {
 		
 		Type GetType();
 		
-		Bool* Clone();
+		std::shared_ptr<Object> Clone();
 		bool& Value();
 		
 		std::string ToString();

@@ -12,13 +12,13 @@ Type Fuse::Table::GetType() {
 std::string Fuse::Table::ToString() {
 	std::string result = "";
 	for (auto entry : data) {
-		result += entry->ToString() + " ";
+		result += (*entry)->ToString() + " ";
 	}
 	return result;
 }
 
 void Fuse::Table::AddEntry(Object* obj) {
-	auto p = std::shared_ptr<Object> ( obj->Clone() );
+	auto p =  std::make_shared<std::shared_ptr<Object>>(obj->Clone());
 	data.push_back( p );
 }
 
@@ -27,21 +27,21 @@ std::size_t Fuse::Table::Count() {
 }
 
 void Fuse::Table::AddKey(Object* obj, const std::string& key) {
-	auto p = std::shared_ptr<Object> ( obj->Clone() );
+	auto p = std::make_shared<std::shared_ptr<Object>>(obj->Clone());
 	data.push_back( p );
 	dict[key] = p;
 }
 
-std::shared_ptr<Object> Fuse::Table::Access(std::size_t index) {
+std::shared_ptr<Object>* Fuse::Table::Access(std::size_t index) {
 	try {
-		return data.at(index);
+		return data.at(index).get();
 	} catch ( ... ) { return nullptr; }
 }
 
-std::shared_ptr<Object> Fuse::Table::Access(const std::string& key) {
+std::shared_ptr<Object>* Fuse::Table::Access(const std::string& key) {
 	auto p = dict.find(key);
 	if (p == dict.end()) return nullptr;
-	return p->second;
+	return p->second.get();
 }
 
 int Fuse::Table::Erase(std::size_t index) {
@@ -67,11 +67,11 @@ int Fuse::Table::Erase(const std::string& key) {
 	return 1;
 }
 
-Table* Fuse::Table::Clone() {
-	auto t = new Table();
+std::shared_ptr<Object> Fuse::Table::Clone() {
+	auto t = std::make_shared<Table>();
 	
 	for (auto entry : data) {
-		t->AddEntry(entry.get());
+		t->AddEntry(entry->get());
 		
 		for (auto key : dict) {
 			if (key.second == entry) {

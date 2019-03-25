@@ -12,8 +12,8 @@ Type Fuse::Object::GetType() {
 	return TYPE_OBJECT;
 }
 
-Object* Fuse::Object::Clone() {
-	
+std::shared_ptr<Object> Fuse::Object::Clone() {
+	return nullptr;
 }
 
 std::string Fuse::Object::ToString() {
@@ -31,10 +31,8 @@ Type Fuse::Null::GetType() {
 }
 
 
-Null* Null::Clone() {
-	auto n = new Null();
-	*n = *this;
-	return n;
+std::shared_ptr<Object> Null::Clone() {
+	return std::make_shared<Null>();
 }
 
 std::string Null::ToString() {
@@ -44,3 +42,8 @@ std::string Null::ToString() {
 bool Fuse::Null::IsTrue() {
 	return false;
 }
+
+std::shared_ptr<Object> Fuse::Signal::Clone() { return std::make_shared<Signal>(SIGNAL); }
+std::string Fuse::Signal::ToString() { return ""; }
+Type Fuse::Signal::GetType() { return TYPE_SIGNAL; }
+bool Fuse::Signal::IsTrue() { return false; }

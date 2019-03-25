@@ -207,6 +207,8 @@ int Lexer::TokenizeKeywordId() {
 	else if (IdName == "in") 	return TOK_IN;
 	else if (IdName == "while") 	return TOK_WHILE;
 	else if (IdName == "do") 	return TOK_DO;
+	else if (IdName == "break")	return TOK_BREAK;
+	else if (IdName == "continue")	return TOK_CONTINUE;
 	else if (IdName == "new") 	return TOK_NEW;
 	else if (IdName == "switch") 	return TOK_SWITCH;
 	else if (IdName == "case") 	return TOK_CASE;

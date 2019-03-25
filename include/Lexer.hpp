@@ -34,6 +34,9 @@ namespace Fuse {
 		TOK_TRUE     = -19,
 		TOK_FALSE    = -20,
 		
+		TOK_BREAK    = -21,
+		TOK_CONTINUE = -22,
+		
 		TOK_STRING = -126,
 		TOK_ERROR = -127
 	};

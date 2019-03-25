@@ -77,6 +77,7 @@ namespace Fuse {
 		
 		NODE_IF_ELSE, NODE_WHILE, NODE_DO,
 		NODE_FOR, NODE_SWITCH,
+		NODE_BREAK, NODE_CONTINUE,
 		
 		NODE_FUNC_DEF,  NODE_TABLE_DEF , NODE_TABLE_ACCESS
 	};
@@ -114,14 +115,23 @@ namespace Fuse {
 	public:
 		FunctionAST(const std::vector<std::string>& _args, std::unique_ptr<ExprAST> _body):
 		  Args(_args), Body(std::move(_body)) { ; }
+		FunctionAST(std::shared_ptr<Object> (*_CFunc)(std::vector<std::shared_ptr<Object>>& args),
+		  std::vector<Type>& _CFuncArgTypes): CFunc(_CFunc), CFuncArgTypes(_CFuncArgTypes) { ; }
 
 		const std::vector<std::string>& GetArgs();
 		const ExprAST * GetBody();
 		
 		std::shared_ptr<Fuse::Object> Call(std::vector< std::shared_ptr<Object> >& call_args);
+		bool IsCFunc();
 	private:
 		std::vector<std::string> Args;
 		std::unique_ptr<ExprAST> Body;
+		
+		std::vector<Type> CFuncArgTypes;
+		std::shared_ptr<Object> (*CFunc)(std::vector<std::shared_ptr<Object>>& args) = nullptr;
+		
+		std::shared_ptr<Fuse::Object> CallFuseFunc(std::vector< std::shared_ptr<Object> >& call_args);
+		std::shared_ptr<Fuse::Object> CallCFunc(std::vector< std::shared_ptr<Object> >& call_args);
 	};
 	
 	class VoidAST : public ExprAST {

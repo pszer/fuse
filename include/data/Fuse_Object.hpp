@@ -12,13 +12,14 @@ namespace Fuse {
 		TYPE_BOOL ,
 		TYPE_TABLE ,
 		TYPE_FUNCTION ,
-		TYPE_UNINITIALIZED
+		TYPE_SIGNAL ,
+		TYPE_UNINITIALIZED 
 	};
 
 	class Object {
 	public:
 		virtual Type GetType(); // returns type
-		virtual Object* Clone();   // returns nullptr
+		virtual std::shared_ptr<Object> Clone();   // returns nullptr
 		
 		virtual std::string ToString();
 		virtual bool IsTrue();
@@ -27,11 +28,28 @@ namespace Fuse {
 	
 	class Null : public Object {
 	public:
-		Null* Clone();
+		std::shared_ptr<Object> Clone();
 		std::string ToString();
 		
 		Type GetType();
 		bool IsTrue();
+	};
+	
+	enum Sig : char {
+		SIG_BREAK,
+		SIG_CONTINUE
+	};
+	
+	class Signal : public Object {
+	public:
+		Signal(Sig _s): SIGNAL(_s) { ; }
+	
+		std::shared_ptr<Object> Clone();
+		std::string ToString();
+		
+		Type GetType();
+		bool IsTrue();
+		Sig SIGNAL;
 	};
 
 };

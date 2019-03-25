@@ -44,6 +44,7 @@
 		"utility": "cpp",
 		"algorithm": "cpp",
 		"iostream": "cpp",
-		"deque": "cpp"
+		"deque": "cpp",
+		"cstdarg": "cpp"
 	}
 }

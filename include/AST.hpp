@@ -15,3 +15,5 @@
 #include "ast/TableConstructor.hpp"
 #include "ast/TableAccess.hpp"
 #include "ast/While.hpp"
+#include "ast/For.hpp"
+#include "ast/Break.hpp"
