@@ -1,6 +1,5 @@
 #pragma once
 
-#include <iostream>
 #include <istream>
 #include <map>
 
@@ -96,12 +95,13 @@ namespace Fuse {
 		int GetLineCount();
 		int GetCharCount();
 		
+		std::ostream* ostream = nullptr; // lexer will output 'text_prefix' on every newline here
+		
 		// Misc function for debugging
 		std::string TokenToString(int tok);
 	private:
 		bool stream_set = false;
 		std::istream* stream = nullptr; // lexer will tokenize this string stream.
-		std::ostream* ostream = nullptr; // lexer will output 'text_prefix' on every newline here
 		char C; // stored character used by Next()
 		std::string text_prefix = "> ";
 		

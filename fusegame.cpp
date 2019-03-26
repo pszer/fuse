@@ -27,11 +27,14 @@ int main(int argc, char ** argv) {
 	Core.AddCFunc("DrawRect", _DrawRect, {TYPE_NUMBER, TYPE_NUMBER, TYPE_NUMBER, TYPE_NUMBER, TYPE_TABLE});
 	Core.AddCFunc("ClearScreen", _ClearScreen, {});
 	Core.AddCFunc("UpdateScreen", _UpdateScreen, {});
-	Core.AddCFunc("Random", _Random, {TYPE_NUMBER, TYPE_NUMBER});
 	
-	Core.SetReader((std::istream*)&file);
-	Core.SetOut(&std::cout, "");
-	Core.Load();
+	//            function | function |         argument
+	//            name     | pointer  |         types
+	Core.AddCFunc("Random",  _Random,   {TYPE_NUMBER, TYPE_NUMBER});
+	
+	Fuse::Core.SetReader((std::istream*)&file);
+	Fuse::Core.SetOut(&std::cout, "");
+	Fuse::Core.Load();
 	
 	if (Core.Error()) {
 		std::cerr << Core.GetErrorMessage() << std::endl;
@@ -86,6 +89,7 @@ int main(int argc, char ** argv) {
 		if (keydown) Core.CallFunction("keydown", call_args);
 		if (keyup) Core.CallFunction("keyup", call_args);
 		
+		std::vector<std::shared_ptr<Object>> call_args = {};
 		Core.CallFunction("loop", call_args);
 		
 		if (Core.Error()) {

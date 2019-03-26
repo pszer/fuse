@@ -51,6 +51,8 @@ namespace Fuse {
 		std::shared_ptr<std::vector<Scope>> EnterScope(std::shared_ptr<std::vector<Scope>> new_scope);
 		
 		std::vector<Operation> Operations[OP_COUNT];
+		
+		friend std::shared_ptr<Object> _print(std::vector<std::shared_ptr<Object>>& args);
 	private:
 		Parser _Parser;
 		Lexer _Lexer;
@@ -64,5 +66,4 @@ namespace Fuse {
 	} Core;
 	
 	std::shared_ptr<Object> _print(std::vector<std::shared_ptr<Object>>& args);
-	
 };

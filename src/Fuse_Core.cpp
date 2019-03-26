@@ -1,5 +1,14 @@
 #include "Fuse_Core.hpp"
 
+namespace __gnu_cxx
+{
+    void __verbose_terminate_handler()
+    {
+        for (;;)
+            ;
+    }
+}
+
 using namespace Fuse;
 
 struct Fuse::Core Fuse::Core;
@@ -74,7 +83,7 @@ std::shared_ptr<Object> Core::CreateCFunc(std::shared_ptr<Object> (*Func)(std::v
 }
 
 std::shared_ptr<Object> Fuse::_print(std::vector<std::shared_ptr<Object>>& args) {
-	std::cout << args.at(0)->ToString() << std::endl;
+	*Core._Lexer.ostream << args.at(0)->ToString() << std::endl;
 	return NullReturn();
 }
 

@@ -233,13 +233,11 @@ int Lexer::TokenizeNumber() {
 		NextChar();
 	}
 	
-	try {
-		if (IsInt) {
-			IntVal = std::stoll(temp);
-		} else {
+	if (IsInt) {
+		IntVal = std::stoll(temp);
+	} else {
 			DoubleVal = std::stod(temp);
-		}
-	} catch (...) { ; }
+	}
 	
 	return TOK_NUMBER;
 }

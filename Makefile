@@ -1,6 +1,6 @@
 IDIR =include
 CC=g++
-CFLAGS=-I$(IDIR) -std=c++1z -O3
+CFLAGS=-I$(IDIR) -std=c++1z -Os -fno-exceptions
 
 ODIR=src/obj
 SDIR=src
