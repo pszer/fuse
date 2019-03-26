@@ -19,8 +19,7 @@ std::shared_ptr<Fuse::Object> Fuse::ForAST::Eval() {
 				auto sig = dynamic_cast<Signal*>(obj.get());
 				if (sig->SIGNAL == SIG_BREAK) {
 					return nullptr;
-				} else if (sig->SIGNAL == SIG_CONTINUE)
-					continue;
+				} else if (sig->SIGNAL == SIG_CONTINUE) { ; }
 			}
 		}
 			
