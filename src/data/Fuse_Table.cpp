@@ -71,8 +71,9 @@ std::shared_ptr<Fuse::Object> Fuse::Table::Assign(const std::string& key, std::s
 	if (p == dict.end()) {
 		AddKey(std::make_shared<Null>(), key);
 		*dict.find(key)->second = obj;
+	} else {
+		*(p->second) = obj;
 	}
-	*p->second = obj;
 	
 	return obj;
 }

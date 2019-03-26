@@ -31,11 +31,10 @@ int main(int argc, char ** argv) {
 	
 	Core.SetReader((std::istream*)&file);
 	Core.SetOut(&std::cout, "");
-	if (Core.Load()) {
-		std::cerr << Core.GetErrorMessage() << std::endl;
-	}
+	Core.Load();
 	
 	if (Core.Error()) {
+		std::cerr << Core.GetErrorMessage() << std::endl;
 		return -1;
 	}
 		

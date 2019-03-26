@@ -15,16 +15,11 @@ std::shared_ptr<Fuse::Object> VariableAST::Eval() {
 		return nullptr;
 	}
 
-	return *v;
+	return v;
 }
 
 std::shared_ptr<Fuse::Object> VariableAST::Assign(std::shared_ptr<Object> obj) {
-	auto v = Fuse::Core.GetVariable(Identifier);
-	if (v) *v = obj;
-	
-	v = Fuse::Core.CreateVariable(Identifier, std::make_shared<Null>());
-	*v = obj;
-	
+	Fuse::Core.CreateVariable(Identifier, obj);
 	return obj;
 }
 

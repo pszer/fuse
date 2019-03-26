@@ -80,7 +80,7 @@ std::shared_ptr<Object> Fuse::_print(std::vector<std::shared_ptr<Object>>& args)
 
 void Core::IO_Library() {
 	auto io = CreateVariable("io", std::make_shared<Table>());
-	auto io_table = dynamic_cast<Table*>(io->get());
+	auto io_table = dynamic_cast<Table*>(io.get());
 	
 	auto ConsolePrint = CreateCFunc(Fuse::_print, {TYPE_OBJECT});
 	io_table->AddKey(ConsolePrint, "ConsolePrint");
@@ -107,13 +107,13 @@ std::shared_ptr<std::vector<Scope>> Core::EnterScope(std::shared_ptr<std::vector
 	return old_scope;
 }
 
-std::shared_ptr<Fuse::Object>* Core::GetVariable(const std::string& var_name) {
+std::shared_ptr<Fuse::Object> Core::GetVariable(const std::string& var_name) {
 	if (LocalScope) {
 		for (size_t i = LocalScope->size() - 1;; --i) {
 			auto scope = LocalScope->at(i);
 			auto v = scope.find(var_name);
 			if (v != scope.end()) {
-				return &(v->second);
+				return v->second;
 			}
 			
 			if (i == 0) break;
@@ -122,32 +122,33 @@ std::shared_ptr<Fuse::Object>* Core::GetVariable(const std::string& var_name) {
 	
 	auto v = GlobalScope.find(var_name);
 	if (v != GlobalScope.end()) {
-		return &v->second;
+		return v->second;
 	}
+	
 	return nullptr;
 }
 
 std::shared_ptr<Fuse::Object> Core::CallFunction(const std::string& func_name, std::vector< std::shared_ptr<Object> >& call_args) {
 	auto func = GetVariable(func_name);
 	if (func == nullptr) return nullptr;
-	return dynamic_cast<Function*>(func->get())->Call(call_args);
+	return dynamic_cast<Function*>(func.get())->Call(call_args);
 }
 
 VAR_SET_STATE Core::SetVariable(const std::string& var_name, std::shared_ptr<Fuse::Object> obj) {
 	auto var = GetVariable(var_name);
 	
 	if (var == nullptr) return ERROR;
-	else *var = obj;
+	else var = obj;
 	return SUCCESS;
 }
 
-std::shared_ptr<Fuse::Object>* Core::CreateVariable(const std::string& var_name, std::shared_ptr<Fuse::Object> obj) {
+std::shared_ptr<Fuse::Object> Core::CreateVariable(const std::string& var_name, std::shared_ptr<Fuse::Object> obj) {
 	if (LocalScope) {
 		LocalScope->back()[var_name] = obj;
-		return &LocalScope->back()[var_name];
+		return LocalScope->back()[var_name];
 	} else {
 		GlobalScope[var_name] = obj;
-		return &GlobalScope[var_name];
+		return GlobalScope[var_name];
 	}
 }
 
