@@ -1,14 +1,18 @@
 #include "ast/TableAccess.hpp"
+#include "Fuse_Core.hpp"
 
 using namespace Fuse;
 
 std::shared_ptr<Fuse::Object> TableAccessAST::Eval() {
 	auto t = table->Eval();
-	if ( (t == nullptr) || (dynamic_cast<Table*>(t.get()) == nullptr) ) {
-		return nullptr;
+	if (t == nullptr) return nullptr;
+	if (dynamic_cast<Table*>(t.get()) == nullptr) {
+		return Core.SetErrorMessage("trying to index a non-table object");
 	}
 	
 	auto index = access->Eval();
+	if (index == nullptr)
+		return nullptr;
 	if (dynamic_cast<Number*>(index.get()) != nullptr) {
 		auto num = dynamic_cast<Number*>(index.get())->GetNum();
 		std::size_t index;
@@ -17,12 +21,14 @@ std::shared_ptr<Fuse::Object> TableAccessAST::Eval() {
 		else
 			index = num.INT;
 			
-		try {
-			return *dynamic_cast<Table*>(t.get())->Access(index);
-		} catch (...) { return nullptr; }
+		auto element = dynamic_cast<Table*>(t.get())->Access(index);
+		if (element == nullptr) return nullptr;
+		return element;
 	} else {
 		std::string key = index->ToString();
-		return *dynamic_cast<Table*>(t.get())->Access(key);
+		auto element = dynamic_cast<Table*>(t.get())->Access(key);
+		if (element == nullptr) return nullptr;
+		return element;
 	}
 }
 
@@ -30,9 +36,11 @@ TypeAST TableAccessAST::GetType() {
 	return NODE_TABLE_ACCESS;
 }
 
-std::shared_ptr<Fuse::Object>* TableAccessAST::Assign() {
+std::shared_ptr<Object> TableAccessAST::Assign(std::shared_ptr<Object> obj) {
 	auto t = table->Eval();
-	if ( (t == nullptr) || (dynamic_cast<Table*>(t.get()) == nullptr) ) {
+	if (t == nullptr) return nullptr;
+	if (dynamic_cast<Table*>(t.get()) == nullptr) {
+		Core.SetErrorMessage("trying to index a non-table object");
 		return nullptr;
 	}
 	
@@ -45,11 +53,9 @@ std::shared_ptr<Fuse::Object>* TableAccessAST::Assign() {
 		else
 			index = num.INT;
 			
-		try {
-			return dynamic_cast<Table*>(t.get())->Access(index);
-		} catch (...) { return nullptr; }
+		return dynamic_cast<Table*>(t.get())->Assign(index, obj);
 	} else {
 		std::string key = index->ToString();
-		return dynamic_cast<Table*>(t.get())->Access(key);
+		return dynamic_cast<Table*>(t.get())->Assign(key, obj);
 	}
 }

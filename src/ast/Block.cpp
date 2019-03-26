@@ -1,4 +1,5 @@
 #include "ast/Block.hpp"
+#include "Fuse_Core.hpp"
 
 using namespace Fuse;
 
@@ -25,12 +26,13 @@ std::shared_ptr<Fuse::Object> Fuse::BlockAST::Eval() {
 		}
 		
 		auto eval = (*STAT)->Eval();
-		if (eval != nullptr && eval->GetType() == TYPE_SIGNAL) {
+		if (eval == nullptr) return nullptr;
+		if (eval->GetType() == TYPE_SIGNAL) {
 			return eval;
 		}
 	}
 	
-	return nullptr;
+	return NullReturn();
 }
 
 /*
@@ -53,7 +55,7 @@ std::shared_ptr<Fuse::Object> Fuse::ReturnAST::Eval() {
 	// If empty return statement
 	if (Expr == nullptr) {
 		// return implicit null
-		return std::shared_ptr<Object>((Object*) new Fuse::Null());
+		return std::make_shared<Null>();;
 	} else {
 		return Expr->Eval();
 	}

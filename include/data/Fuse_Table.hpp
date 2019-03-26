@@ -20,16 +20,18 @@ namespace Fuse {
 		std::string ToString();
 		
 		std::size_t Count();
-		std::shared_ptr<Object>* Access(std::size_t index);
-		std::shared_ptr<Object>* Access(const std::string& key);
+		std::shared_ptr<Fuse::Object> Access(std::size_t index);
+		std::shared_ptr<Fuse::Object> Access(const std::string& key);
+		std::shared_ptr<Fuse::Object> Assign(std::size_t index, std::shared_ptr<Object> obj);
+		std::shared_ptr<Fuse::Object> Assign(const std::string& key, std::shared_ptr<Object> obj);
 		
 		/* Erases element at index or a key, returns 1 for success
 		   0 for error */
 		int Erase(std::size_t index);
 		int Erase(const std::string& key);
 		
-		void AddEntry(Object*);
-		void AddKey(Object*, const std::string& key);
+		void AddEntry(std::shared_ptr<Object>);
+		void AddKey(std::shared_ptr<Object>, const std::string& key);
 		bool IsTrue();
 	private:
 		std::vector< std::shared_ptr< std::shared_ptr<Object> > > data;

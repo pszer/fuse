@@ -4,6 +4,11 @@ using namespace Fuse;
 
 struct Fuse::Core Fuse::Core;
 
+static std::shared_ptr<Object> _null = std::make_shared<Null>();
+std::shared_ptr<Object> Fuse::NullReturn() {
+	return _null;
+}
+
 Core::Core(): _Parser( Parser(&_Lexer) ) {
 	InitOperations();
 	IO_Library();
@@ -19,6 +24,20 @@ void Core::SetOut(std::ostream* _ostream, std::string str) {
 
 std::unique_ptr<ExprAST> Core::Parse() {
 	return std::move(_Parser.ParseStatement());
+}
+
+bool Core::Error() {
+	return ErrorFlag;
+}
+
+std::string Core::GetErrorMessage() {
+	return ErrorMsg;
+}
+
+std::shared_ptr<Object> Core::SetErrorMessage(const std::string& str) {
+	ErrorFlag = true;
+	ErrorMsg = str;
+	return nullptr;
 }
 
 int Core::Load(void (*handle)(std::shared_ptr<Object>)) {
@@ -39,6 +58,8 @@ int Core::Load(void (*handle)(std::shared_ptr<Object>)) {
 		auto eval = stat->Eval();
 		if (handle != nullptr)
 			handle(eval);
+		if (Error())
+			return -1;
 	}
 	
 	return 0;
@@ -54,7 +75,7 @@ std::shared_ptr<Object> Core::CreateCFunc(std::shared_ptr<Object> (*Func)(std::v
 
 std::shared_ptr<Object> Fuse::_print(std::vector<std::shared_ptr<Object>>& args) {
 	std::cout << args.at(0)->ToString() << std::endl;
-	return nullptr;
+	return NullReturn();
 }
 
 void Core::IO_Library() {
@@ -62,7 +83,7 @@ void Core::IO_Library() {
 	auto io_table = dynamic_cast<Table*>(io->get());
 	
 	auto ConsolePrint = CreateCFunc(Fuse::_print, {TYPE_OBJECT});
-	io_table->AddKey(ConsolePrint.get(), "ConsolePrint");
+	io_table->AddKey(ConsolePrint, "ConsolePrint");
 }
 
 Scope& Core::TopScope() {
@@ -88,16 +109,21 @@ std::shared_ptr<std::vector<Scope>> Core::EnterScope(std::shared_ptr<std::vector
 
 std::shared_ptr<Fuse::Object>* Core::GetVariable(const std::string& var_name) {
 	if (LocalScope) {
-		for (size_t i = 0; i < LocalScope->size(); ++i) {
+		for (size_t i = LocalScope->size() - 1;; --i) {
 			auto scope = LocalScope->at(i);
 			auto v = scope.find(var_name);
-			if (v != scope.end()) return &(v->second);
+			if (v != scope.end()) {
+				return &(v->second);
+			}
+			
+			if (i == 0) break;
 		}
 	}
 	
 	auto v = GlobalScope.find(var_name);
-	if (v != GlobalScope.end()) return &(v->second);
-	
+	if (v != GlobalScope.end()) {
+		return &v->second;
+	}
 	return nullptr;
 }
 

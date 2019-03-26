@@ -16,6 +16,8 @@ namespace Fuse {
 	
 	enum VAR_SET_STATE { SUCCESS , ERROR };
 	
+	std::shared_ptr<Object> NullReturn();
+	
 	extern struct Core {
 	public:
 		Core();
@@ -39,6 +41,11 @@ namespace Fuse {
 		
 		void IO_Library();
 		
+		
+		bool Error();
+		std::string GetErrorMessage();
+		std::shared_ptr<Object> SetErrorMessage(const std::string& str); // returns nullptr
+		
 		// Enter a new scope, returns old scope
 		std::shared_ptr<std::vector<Scope>> EnterScope();
 		std::shared_ptr<std::vector<Scope>> EnterScope(std::shared_ptr<std::vector<Scope>> new_scope);
@@ -51,6 +58,9 @@ namespace Fuse {
 		Scope& TopScope();
 		Scope GlobalScope;
 		std::shared_ptr<std::vector<Scope>> LocalScope;
+		
+		bool ErrorFlag = false;
+		std::string ErrorMsg = "";
 	} Core;
 	
 	std::shared_ptr<Object> _print(std::vector<std::shared_ptr<Object>>& args);

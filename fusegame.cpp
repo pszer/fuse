@@ -24,15 +24,21 @@ int main(int argc, char ** argv) {
 	std::ifstream file(argv[1]);
 	if (!file) return -1;
 	
-	Core.AddCFunc("DrawRect", _DrawRect, {TYPE_NUMBER, TYPE_NUMBER, TYPE_NUMBER, TYPE_NUMBER});
+	Core.AddCFunc("DrawRect", _DrawRect, {TYPE_NUMBER, TYPE_NUMBER, TYPE_NUMBER, TYPE_NUMBER, TYPE_TABLE});
 	Core.AddCFunc("ClearScreen", _ClearScreen, {});
 	Core.AddCFunc("UpdateScreen", _UpdateScreen, {});
 	Core.AddCFunc("Random", _Random, {TYPE_NUMBER, TYPE_NUMBER});
 	
 	Core.SetReader((std::istream*)&file);
 	Core.SetOut(&std::cout, "");
-	Core.Load();
+	if (Core.Load()) {
+		std::cerr << Core.GetErrorMessage() << std::endl;
+	}
 	
+	if (Core.Error()) {
+		return -1;
+	}
+		
 	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
 		return -1;
 	}
@@ -83,7 +89,13 @@ int main(int argc, char ** argv) {
 		
 		Core.CallFunction("loop", call_args);
 		
+		if (Core.Error()) {
+			std::cerr << Core.GetErrorMessage() << std::endl;
+			going = false;
+		}
+		
 		SDL_Delay(15);
+		//break;
 	}
 	
 	SDL_DestroyWindow(window);
@@ -97,30 +109,37 @@ std::shared_ptr<Fuse::Object> _DrawRect(std::vector<std::shared_ptr<Fuse::Object
 	     y = dynamic_cast<Fuse::Number*>(args.at(1).get()),
 	     w = dynamic_cast<Fuse::Number*>(args.at(2).get()),
 	     h = dynamic_cast<Fuse::Number*>(args.at(3).get());
+	auto c = dynamic_cast<Fuse::Table*>(args.at(4).get());
 	     
 	SDL_Rect rect;
 	rect.x = (x->GetNum().type == INT ? x->GetNum().INT : (int)x->GetNum().DOUBLE);
 	rect.y = (y->GetNum().type == INT ? y->GetNum().INT : (int)y->GetNum().DOUBLE);
 	rect.w = (w->GetNum().type == INT ? w->GetNum().INT : (int)w->GetNum().DOUBLE);
 	rect.h = (h->GetNum().type == INT ? h->GetNum().INT : (int)h->GetNum().DOUBLE);
+	SDL_Colour colour;
 	
-	SDL_SetRenderDrawColor(renderer, 0xff, 0xff, 0xff, 0xff);
+	colour.r = dynamic_cast<Fuse::Number*>(c->Access(0).get())->GetNum().INT;
+	colour.g = dynamic_cast<Fuse::Number*>(c->Access(1).get())->GetNum().INT;
+	colour.b = dynamic_cast<Fuse::Number*>(c->Access(2).get())->GetNum().INT;
+	colour.a = 0xff;
+	
+	SDL_SetRenderDrawColor(renderer, colour.r, colour.g, colour.b, colour.a);
 	SDL_RenderFillRect(renderer, &rect);
 	
-	return nullptr;
+	return std::make_shared<Null>();
 }
 
 std::shared_ptr<Fuse::Object> _ClearScreen(std::vector<std::shared_ptr<Fuse::Object>>& args) {
 	SDL_SetRenderDrawColor(renderer, 0x0, 0x0, 0x0, 0xff);
 	SDL_RenderClear(renderer);
 	
-	return nullptr;
+	return std::make_shared<Null>();
 }
 
 std::shared_ptr<Fuse::Object> _UpdateScreen(std::vector<std::shared_ptr<Fuse::Object>>& args) {
 	SDL_RenderPresent(renderer);
 	
-	return nullptr;
+	return std::make_shared<Null>();
 }
 
 std::shared_ptr<Fuse::Object> _Random(std::vector<std::shared_ptr<Fuse::Object>>& args) {

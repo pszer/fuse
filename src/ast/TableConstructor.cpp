@@ -11,9 +11,11 @@ std::shared_ptr<Fuse::Object> Fuse::TableConstructorAST::Eval() {
 	
 	for (auto entry = entries.begin(); entry != entries.end(); ++entry) {
 		if (entry->key == nullptr) {
-			table->AddEntry(entry->expr->Eval().get());
+			table->AddEntry(entry->expr->Eval());
 		} else {
-			table->AddKey( entry->expr->Eval().get(), entry->key->Eval()->ToString() );
+			auto obj = entry->expr->Eval();
+			if (obj == nullptr) return nullptr;
+			table->AddKey(obj, entry->key->Eval()->ToString() );
 		}
 	}
 	

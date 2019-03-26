@@ -16,7 +16,7 @@ namespace Fuse {
 		
 		// Returns nullptr for an error
 		std::shared_ptr<Fuse::Object> Eval();
-		std::shared_ptr<Fuse::Object>* Assign();
+		std::shared_ptr<Fuse::Object> Assign(std::shared_ptr<Object> obj);
 		
 		const std::string& GetIdentifier();
 	private:

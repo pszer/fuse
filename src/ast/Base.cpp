@@ -40,8 +40,7 @@ std::shared_ptr<Fuse::Object> FunctionAST::CallFuseFunc(std::vector< std::shared
 	auto body_eval = Body->Eval();
 	
 	Core.EnterScope(old_scope);
-	
-	return std::move(body_eval);
+	return body_eval;
 }
 
 std::shared_ptr<Fuse::Object> FunctionAST::CallCFunc(std::vector< std::shared_ptr<Object> >& call_args) {
@@ -62,7 +61,7 @@ std::shared_ptr<Fuse::Object> FunctionAST::CallCFunc(std::vector< std::shared_pt
 }
 
 std::shared_ptr<Object> Fuse::VoidAST::Eval() {
-	return nullptr;
+	return NullReturn();
 }
 
 TypeAST Fuse::VoidAST::GetType() {

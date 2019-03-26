@@ -15,6 +15,18 @@ namespace Fuse {
 		TYPE_SIGNAL ,
 		TYPE_UNINITIALIZED 
 	};
+	
+	const std::string TypeName[] = {
+		"Object",
+		"Null",
+		"Number",
+		"String",
+		"Bool",
+		"Table",
+		"Function",
+		"Signal",
+		"Uninitialized"
+	};
 
 	class Object {
 	public:

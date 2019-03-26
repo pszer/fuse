@@ -10,7 +10,9 @@ int main(int argc, char** argv) {
 	
 	Fuse::Core.SetOut(&std::cerr, "> ");
 	Fuse::Core.SetReader(&std::cin);
-	Fuse::Core.Load(Print);
+	if (Fuse::Core.Load(Print)) {
+		std::cout << "FuseError : " << Fuse::Core.GetErrorMessage() << std::endl;
+	}
 	
 	return 0;
 }

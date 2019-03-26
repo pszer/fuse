@@ -1,4 +1,5 @@
 #include "ast/IfElse.hpp"
+#include "Fuse_Core.hpp"
 
 using namespace Fuse;
 
@@ -22,6 +23,6 @@ std::shared_ptr<Fuse::Object> Fuse::IfElseAST::Eval() {
 	} else {
 		if (else_body != nullptr)
 			return else_body->Eval();
-		return std::make_shared<Null>();
+		return NullReturn();
 	}
 }

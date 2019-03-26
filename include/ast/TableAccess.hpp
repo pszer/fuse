@@ -11,7 +11,7 @@ namespace Fuse {
 			
 		std::shared_ptr<Fuse::Object> Eval();
 		TypeAST GetType();
-		std::shared_ptr<Fuse::Object>* Assign();
+		std::shared_ptr<Object> Assign(std::shared_ptr<Object> obj);
 	private:
 		std::unique_ptr<ExprAST> table, access;
 	};
