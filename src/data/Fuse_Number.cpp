@@ -27,3 +27,13 @@ bool Fuse::Number::IsTrue() {
 		return val.INT;
 	return val.DOUBLE;
 }
+
+long long Fuse::Number::Int() {
+	if (val.type == INT) return val.INT;
+	return (long long)val.DOUBLE;
+}
+
+double Fuse::Number::Double() {
+	if (val.type == INT) return (double)val.INT;
+	return val.DOUBLE;
+}

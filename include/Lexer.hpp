@@ -59,6 +59,16 @@ namespace Fuse {
 		"++", "--", "-", "!"
 	};
 	
+	const int PREUNARY_OP_COUNT = 4, POSTUNARY_OP_COUNT = 2;
+	enum PREUNARY_OPERATORS {
+		PRE_OP_INC, PRE_OP_DEC, PRE_OP_NEGATE, PRE_OP_NOT
+	};
+	enum POSTUNARY_OPERATORS {
+		POST_OP_INC, POST_OP_DEC
+	};
+	PREUNARY_OPERATORS GetPreunaryOp(OPERATORS op); // -1 if not preunop
+	POSTUNARY_OPERATORS GetPostunaryOp(OPERATORS op); // -1 if not postunop
+	
 	const std::string emit_chars = ";().";
 	const std::string op_chars = "=+-*/%<>&|!";
 	

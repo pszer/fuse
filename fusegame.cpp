@@ -6,7 +6,7 @@
 #include <cstdlib>
 #include <time.h>
 
-#include "Fuse_Core.hpp"
+#include "Fuse.hpp"
 
 SDL_Window* window;
 SDL_Renderer* renderer;
@@ -108,22 +108,22 @@ int main(int argc, char ** argv) {
 }
 
 std::shared_ptr<Fuse::Object> _DrawRect(std::vector<std::shared_ptr<Fuse::Object>>& args) {
-	auto x = dynamic_cast<Fuse::Number*>(args.at(0).get()),
-	     y = dynamic_cast<Fuse::Number*>(args.at(1).get()),
-	     w = dynamic_cast<Fuse::Number*>(args.at(2).get()),
-	     h = dynamic_cast<Fuse::Number*>(args.at(3).get());
-	auto c = dynamic_cast<Fuse::Table*>(args.at(4).get());
+	auto x = Fuse::GetNumber(args.at(0)),
+	     y = Fuse::GetNumber(args.at(1)),
+	     w = Fuse::GetNumber(args.at(2)),
+	     h = Fuse::GetNumber(args.at(3));
+	auto c = Fuse::GetTable(args.at(4));
 	     
 	SDL_Rect rect;
-	rect.x = (x->GetNum().type == INT ? x->GetNum().INT : (int)x->GetNum().DOUBLE);
-	rect.y = (y->GetNum().type == INT ? y->GetNum().INT : (int)y->GetNum().DOUBLE);
-	rect.w = (w->GetNum().type == INT ? w->GetNum().INT : (int)w->GetNum().DOUBLE);
-	rect.h = (h->GetNum().type == INT ? h->GetNum().INT : (int)h->GetNum().DOUBLE);
+	rect.x = x->Int();
+	rect.y = y->Int();
+	rect.w = w->Int();
+	rect.h = h->Int();
 	SDL_Colour colour;
 	
-	colour.r = dynamic_cast<Fuse::Number*>(c->Access(0).get())->GetNum().INT;
-	colour.g = dynamic_cast<Fuse::Number*>(c->Access(1).get())->GetNum().INT;
-	colour.b = dynamic_cast<Fuse::Number*>(c->Access(2).get())->GetNum().INT;
+	colour.r = Fuse::GetNumber(c->Access(0))->Int();
+	colour.g = Fuse::GetNumber(c->Access(1))->Int();
+	colour.b = Fuse::GetNumber(c->Access(2))->Int();
 	colour.a = 0xff;
 	
 	SDL_SetRenderDrawColor(renderer, colour.r, colour.g, colour.b, colour.a);
@@ -146,11 +146,11 @@ std::shared_ptr<Fuse::Object> _UpdateScreen(std::vector<std::shared_ptr<Fuse::Ob
 }
 
 std::shared_ptr<Fuse::Object> _Random(std::vector<std::shared_ptr<Fuse::Object>>& args) {
-	auto l = dynamic_cast<Fuse::Number*>(args.at(0).get()),
-	     u = dynamic_cast<Fuse::Number*>(args.at(1).get());
+	auto l = Fuse::GetNumber(args.at(0)),
+	     u = Fuse::GetNumber(args.at(1));
 	   
-	double lower = (l->GetNum().type == DOUBLE ? l->GetNum().DOUBLE : (double)l->GetNum().INT);
-	double upper = (u->GetNum().type == DOUBLE ? u->GetNum().DOUBLE : (double)u->GetNum().INT);
+	double lower = l->Double();
+	double upper = l->Double();
 	
 	return std::make_shared<Number>( (std::rand() / (double)__INT_MAX__) * (upper - lower) + lower );
 }

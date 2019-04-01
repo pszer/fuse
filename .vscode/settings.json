@@ -45,6 +45,7 @@
 		"algorithm": "cpp",
 		"iostream": "cpp",
 		"deque": "cpp",
-		"cstdarg": "cpp"
+		"cstdarg": "cpp",
+		"iomanip": "cpp"
 	}
 }

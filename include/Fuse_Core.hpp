@@ -6,9 +6,13 @@
 #include "Parser.hpp"
 #include "Operations.hpp"
 
+#include <iostream>
 #include <vector>
 #include <memory>
 #include <map>
+
+#include "std/io.hpp"
+#include "std/math.hpp"
 
 using Scope = std::map<std::string, std::shared_ptr<Fuse::Object> >;
 
@@ -24,6 +28,7 @@ namespace Fuse {
 		
 		int SetReader(std::istream* _stream);
 		void SetOut(std::ostream* _ostream, std::string str = "> ");
+		void SetConsoleInput(std::istream* _stream);
 		
 		// Returns shared_ptr pointer to variable 'var_name's object, if variable doesn't exist it returns nullptr
 		std::shared_ptr<Fuse::Object> GetVariable(const std::string& var_name);
@@ -37,10 +42,9 @@ namespace Fuse {
 		int Load(void (*handle)(std::shared_ptr<Object>) = nullptr);
 		
 		void AddCFunc(const std::string& name, std::shared_ptr<Object> (*Func)(std::vector<std::shared_ptr<Object>>& args), std::vector<Type> ArgTypes);
-		std::shared_ptr<Object> CreateCFunc(std::shared_ptr<Object> (*Func)(std::vector<std::shared_ptr<Object>>& args), std::vector<Type> ArgTypes);
-		
+
 		void IO_Library();
-		
+		void Math_Library();
 		
 		bool Error();
 		std::string GetErrorMessage();
@@ -51,8 +55,12 @@ namespace Fuse {
 		std::shared_ptr<std::vector<Scope>> EnterScope(std::shared_ptr<std::vector<Scope>> new_scope);
 		
 		std::vector<Operation> Operations[OP_COUNT];
+		std::vector<UnaryOperation> PreUnopOperations[PREUNARY_OP_COUNT];
+		std::vector<UnaryOperation> PostUnopOperations[POSTUNARY_OP_COUNT];
 		
-		friend std::shared_ptr<Object> _print(std::vector<std::shared_ptr<Object>>& args);
+		friend std::shared_ptr<Object> _ioConsolePrint(std::vector<std::shared_ptr<Object>>& args);
+		friend std::shared_ptr<Object> _ioConsoleGetChar(std::vector<std::shared_ptr<Object>>& args);
+		friend std::shared_ptr<Object> _ioConsoleGetLine(std::vector<std::shared_ptr<Object>>& args);
 	private:
 		Parser _Parser;
 		Lexer _Lexer;
@@ -61,9 +69,9 @@ namespace Fuse {
 		Scope GlobalScope;
 		std::shared_ptr<std::vector<Scope>> LocalScope;
 		
+		std::istream* iconsole = nullptr;
+		
 		bool ErrorFlag = false;
 		std::string ErrorMsg = "";
 	} Core;
-	
-	std::shared_ptr<Object> _print(std::vector<std::shared_ptr<Object>>& args);
 };

@@ -4,14 +4,18 @@
 using namespace Fuse;
 
 std::unique_ptr<ExprAST> Parser::StatLogError(const std::string& str) {
-	if (lex->ostream )
+	if (lex->ostream) {
 		*lex->ostream << "\033[0;31mERROR\033[0m: " << str << std::endl;
+	}
+	Core.SetErrorMessage(str);
 	return nullptr;
 }
 
 std::unique_ptr<ExprAST> Parser::ExprLogError(const std::string& str) {
-	if (lex->ostream )
+	if (lex->ostream) {
 		*lex->ostream  << "\033[0;31mERROR\033[0m: " << str << std::endl;
+	}
+	Core.SetErrorMessage(str);
 	return nullptr;
 }
 
@@ -67,7 +71,7 @@ std::unique_ptr<ExprAST> Parser::ParseStrictExpression() {
 	return std::move(Binop);
 }
 
-std::unique_ptr<ExprAST> Parser::ParsePrimary() {
+std::unique_ptr<ExprAST> Parser::_ParsePrimary() {
 	switch (GetCurrentToken()) {
 	case TOK_STRING:
 		return ParseString();
@@ -92,6 +96,8 @@ std::unique_ptr<ExprAST> Parser::ParsePrimary() {
 		return ParseBreak();
 	case TOK_CONTINUE:
 		return ParseContinue();
+	case TOK_OPERATOR:
+		return ParsePreUnopExpr();
 	case '{':
 		return ParseBlock();
 	case '(':
@@ -105,7 +111,18 @@ std::unique_ptr<ExprAST> Parser::ParsePrimary() {
 	}
 }
 
-std::unique_ptr<ExprAST> Parser::ParseStrictExprPrimary() {
+std::unique_ptr<ExprAST> Parser::ParsePrimary() {
+	auto primary = _ParsePrimary();
+	if (primary == nullptr) return nullptr;
+	
+	if (GetCurrentToken() == TOK_OPERATOR && (GetPostunaryOp(lex->Operator) != -1)) {
+		return ParsePostUnopExpr(std::move(primary));
+	} else {
+		return std::move(primary);
+	}
+}
+
+std::unique_ptr<ExprAST> Parser::_ParseStrictExprPrimary() {
 	switch (GetCurrentToken()) {
 	case TOK_STRING:
 		return ParseString();
@@ -124,8 +141,21 @@ std::unique_ptr<ExprAST> Parser::ParseStrictExprPrimary() {
 		return ParseParenExpr();
 	case ';':
 		return std::make_unique<VoidAST>();
+	case TOK_OPERATOR:
+		return ParsePreUnopExpr();
 	default:
 		return StatLogError("Invalid statement");
+	}
+}
+
+std::unique_ptr<ExprAST> Parser::ParseStrictExprPrimary() {
+	auto primary = _ParseStrictExprPrimary();
+	if (primary == nullptr) return nullptr;
+	
+	if (GetCurrentToken() == TOK_OPERATOR && (GetPostunaryOp(lex->Operator) != -1)) {
+		return ParsePostUnopExpr(std::move(primary));
+	} else {
+		return std::move(primary);
 	}
 }
 
@@ -438,11 +468,22 @@ std::unique_ptr<ExprAST> Parser::ParseBinopRHS(int ExprPrec, std::unique_ptr<Exp
 }
 
 std::unique_ptr<ExprAST> Parser::ParsePreUnopExpr() {
-	return nullptr;
+	auto PreunaryOp = GetPreunaryOp(lex->Operator);
+	if (PreunaryOp == -1)
+		return ExprLogError(op_str[lex->Operator] + " is not a preunary operation");
+	
+	GetNextToken(); // eat operator
+	auto expr = ParsePrimary();
+	return std::make_unique<PreUnaryExprAST>(std::move(expr), PreunaryOp);
 }
 
-std::unique_ptr<ExprAST> Parser::ParsePostUnopExpr() {
-	return nullptr;
+std::unique_ptr<ExprAST> Parser::ParsePostUnopExpr(std::unique_ptr<ExprAST> expr) {
+	auto PostunaryOp = GetPostunaryOp(lex->Operator);
+	if (PostunaryOp == -1)
+		return ExprLogError(op_str[lex->Operator] + " is not a postunary operation");
+		
+	GetNextToken(); // eat operator
+	return std::make_unique<PostUnaryExprAST>(std::move(expr), PostunaryOp);
 }
 		
 std::unique_ptr<ExprAST> Parser::ParseNumber() {

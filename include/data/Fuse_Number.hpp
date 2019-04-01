@@ -38,6 +38,9 @@ namespace Fuse {
 		INumber& GetNum();
 		std::string ToString();
 		bool IsTrue();
+		
+		long long Int();
+		double Double();
 	private:
 		INumber val;
 	};

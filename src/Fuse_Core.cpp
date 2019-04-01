@@ -1,4 +1,5 @@
 #include "Fuse_Core.hpp"
+#include "Fuse_Funcs.hpp"
 
 namespace __gnu_cxx
 {
@@ -21,6 +22,7 @@ std::shared_ptr<Object> Fuse::NullReturn() {
 Core::Core(): _Parser( Parser(&_Lexer) ) {
 	InitOperations();
 	IO_Library();
+	Math_Library();
 }
 
 int Core::SetReader(std::istream* _stream) {
@@ -28,7 +30,11 @@ int Core::SetReader(std::istream* _stream) {
 }
 
 void Core::SetOut(std::ostream* _ostream, std::string str) {
-	return _Lexer.SetOut(_ostream, str);
+	_Lexer.SetOut(_ostream, str);
+}
+
+void Core::SetConsoleInput(std::istream* _stream) {
+	iconsole = _stream;
 }
 
 std::unique_ptr<ExprAST> Core::Parse() {
@@ -75,24 +81,44 @@ int Core::Load(void (*handle)(std::shared_ptr<Object>)) {
 };
 
 void Core::AddCFunc(const std::string& name, std::shared_ptr<Object> (*Func)(std::vector<std::shared_ptr<Object>>& args), std::vector<Type> ArgTypes) {
-	CreateVariable(name, CreateCFunc(Func, ArgTypes));
-}
-
-std::shared_ptr<Object> Core::CreateCFunc(std::shared_ptr<Object> (*Func)(std::vector<std::shared_ptr<Object>>& args), std::vector<Type> ArgTypes) {
-	return std::make_shared<Function>(std::make_shared<FunctionAST>(Func, ArgTypes));
-}
-
-std::shared_ptr<Object> Fuse::_print(std::vector<std::shared_ptr<Object>>& args) {
-	*Core._Lexer.ostream << args.at(0)->ToString() << std::endl;
-	return NullReturn();
+	CreateVariable(name, MakeCFunc(Func, ArgTypes));
 }
 
 void Core::IO_Library() {
-	auto io = CreateVariable("io", std::make_shared<Table>());
-	auto io_table = dynamic_cast<Table*>(io.get());
+	auto io = CreateVariable("io", MakeTable());
+	auto io_table = GetTable(io);
 	
-	auto ConsolePrint = CreateCFunc(Fuse::_print, {TYPE_OBJECT});
-	io_table->AddKey(ConsolePrint, "ConsolePrint");
+	io_table->AddKey(MakeCFunc(_ioConsolePrint, {TYPE_OBJECT}), "ConsolePrint");
+	io_table->AddKey(MakeCFunc(_ioConsoleGetChar, { }), "ConsoleGetChar");
+	io_table->AddKey(MakeCFunc(_ioConsoleGetLine, { }), "ConsoleGetLine");
+}
+
+void Core::Math_Library() {
+	auto math = CreateVariable("math", MakeTable());
+	auto math_table = GetTable(math);
+	
+	math_table->AddKey(MakeCFunc(_mathSqrt, {TYPE_NUMBER}), "Sqrt");
+	math_table->AddKey(MakeCFunc(_mathCbrt, {TYPE_NUMBER}), "Cbrt");
+	
+	math_table->AddKey(MakeCFunc(_mathSin, {TYPE_NUMBER}), "Sin");
+	math_table->AddKey(MakeCFunc(_mathCos, {TYPE_NUMBER}), "Cos");
+	math_table->AddKey(MakeCFunc(_mathTan, {TYPE_NUMBER}), "Tan");
+	
+	math_table->AddKey(MakeCFunc(_mathAsin, {TYPE_NUMBER}), "Asin");
+	math_table->AddKey(MakeCFunc(_mathAcos, {TYPE_NUMBER}), "Acos");
+	math_table->AddKey(MakeCFunc(_mathAtan, {TYPE_NUMBER}), "Atan");
+	math_table->AddKey(MakeCFunc(_mathAtan, {TYPE_NUMBER, TYPE_NUMBER}), "Atan2");
+	
+	math_table->AddKey(MakeCFunc(_mathSinh, {TYPE_NUMBER}), "Sinh");
+	math_table->AddKey(MakeCFunc(_mathCosh, {TYPE_NUMBER}), "Cosh");
+	math_table->AddKey(MakeCFunc(_mathTanh, {TYPE_NUMBER}), "Tanh");
+	
+	math_table->AddKey(MakeCFunc(_mathExp, {TYPE_NUMBER}), "Exp");
+	math_table->AddKey(MakeCFunc(_mathLog, {TYPE_NUMBER}), "Log");
+	math_table->AddKey(MakeCFunc(_mathLog10, {TYPE_NUMBER}), "Log10");
+	
+	math_table->AddKey(MakeCFunc(_mathCeiling, {TYPE_NUMBER}), "Ceiling");
+	math_table->AddKey(MakeCFunc(_mathFloor, {TYPE_NUMBER}), "Floor");
 }
 
 Scope& Core::TopScope() {

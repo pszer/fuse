@@ -112,7 +112,6 @@ inline bool OperatorChar(char  c) {
 	return op_chars.find(c) != std::string::npos;
 }
 
-
 int Lexer::GetNextToken() {
 	if (HeldToken != NO_TOK_HELD) {
 		int held = HeldToken;
@@ -125,6 +124,16 @@ int Lexer::GetNextToken() {
 
 int Lexer::PutBackToken() {
 	HeldToken = LastToken;
+}
+
+PREUNARY_OPERATORS Fuse::GetPreunaryOp(OPERATORS op) {
+	if (op < 14 || op >= OP_COUNT) return (PREUNARY_OPERATORS)-1;
+	return (PREUNARY_OPERATORS)(op-14);
+}
+
+POSTUNARY_OPERATORS Fuse::GetPostunaryOp(OPERATORS op) {
+	if (op < 14 || op >= 16) return (POSTUNARY_OPERATORS)-1;
+	return (POSTUNARY_OPERATORS)(op-14);
 }
 
 int Lexer::Next() {
@@ -191,7 +200,7 @@ int Lexer::Next() {
 int Lexer::TokenizeKeywordId() {
 	IdName = "";
 		
-	while (IdentifierChar(C)) {
+	while (IdentifierChar(C) || std::isdigit(C)) {
 		IdName += C;
 		NextChar();
 	}

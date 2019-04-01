@@ -26,13 +26,13 @@ namespace Fuse {
 	// eg. ++i
 	class PreUnaryExprAST : public ExprAST {
 	public:
-		PreUnaryExprAST(std::unique_ptr<ExprAST> _expr, OPERATORS _op): Expr(std::move(_expr)), Operator(_op) { ; }
+		PreUnaryExprAST(std::unique_ptr<ExprAST> _expr, PREUNARY_OPERATORS _op): Expr(std::move(_expr)), Operator(_op) { ; }
 		
 		std::shared_ptr<Fuse::Object> Eval();
 		TypeAST GetType();
 	private:
 		std::unique_ptr<ExprAST> Expr;
-		OPERATORS Operator;
+		PREUNARY_OPERATORS Operator;
 	
 		TypeAST type = NODE_UNOP_EXPR;
 	};
@@ -41,13 +41,13 @@ namespace Fuse {
 	// eg. i++
 	class PostUnaryExprAST : public ExprAST {
 	public:
-		PostUnaryExprAST(std::unique_ptr<ExprAST> _expr, OPERATORS _op): Expr(std::move(_expr)), Operator(_op) { ; }
+		PostUnaryExprAST(std::unique_ptr<ExprAST> _expr, POSTUNARY_OPERATORS _op): Expr(std::move(_expr)), Operator(_op) { ; }
 		
 		std::shared_ptr<Fuse::Object> Eval();
 		TypeAST GetType();
 	private:
 		std::unique_ptr<ExprAST> Expr;
-		OPERATORS Operator;
+		POSTUNARY_OPERATORS Operator;
 	
 		TypeAST type = NODE_UNOP_EXPR;
 	};

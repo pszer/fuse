@@ -66,7 +66,6 @@ namespace Fuse {
 
 };
 
-#include "data/Fuse_Object.hpp"
 #include "data/Fuse_Table.hpp"
 #include "data/Fuse_Number.hpp"
 #include "data/Fuse_String.hpp"

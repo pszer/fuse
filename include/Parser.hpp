@@ -28,7 +28,9 @@ namespace Fuse {
 		std::unique_ptr<ExprAST> ParseExpression();
 		std::unique_ptr<ExprAST> ParseStrictExpression();
 		std::unique_ptr<ExprAST> ParsePrimary();
+		std::unique_ptr<ExprAST> _ParsePrimary();
 		std::unique_ptr<ExprAST> ParseStrictExprPrimary();
+		std::unique_ptr<ExprAST> _ParseStrictExprPrimary();
 		std::unique_ptr<ExprAST> ParseParenExpr();
 		
 		std::unique_ptr<ExprAST> ParseFuncDef();
@@ -50,7 +52,7 @@ namespace Fuse {
 		std::unique_ptr<ExprAST> ParseVariable();
 		
 		std::unique_ptr<ExprAST> ParsePreUnopExpr();
-		std::unique_ptr<ExprAST> ParsePostUnopExpr();
+		std::unique_ptr<ExprAST> ParsePostUnopExpr(std::unique_ptr<ExprAST> expr);
 		
 		std::unique_ptr<ExprAST> ParseNumber();
 		std::unique_ptr<ExprAST> ParseString();

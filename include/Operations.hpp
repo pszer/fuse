@@ -9,6 +9,7 @@
 namespace Fuse {
 	
 	typedef std::shared_ptr<Object> (*Operation_Func)(std::shared_ptr<Object>,std::shared_ptr<Object>);
+	typedef std::shared_ptr<Object> (*UnaryOperation_Func)(std::shared_ptr<Object>);
 	
 	struct Operation {
 		Operation(Type _a, Type _b, Operation_Func _func):
@@ -18,12 +19,24 @@ namespace Fuse {
 		Operation_Func func;
 	};
 	
+	struct UnaryOperation {
+		UnaryOperation(Type _type, UnaryOperation_Func _func):
+			type(_type), func(_func) { ; }
+		
+		Type type;
+		UnaryOperation_Func func;
+	};
+	
 	void InitOperations();
 		
 	Operation_Func GetOperation(Type a, Type b, OPERATORS op);
+	UnaryOperation_Func GetUnaryOperation(Type type, POSTUNARY_OPERATORS op);
+	UnaryOperation_Func GetUnaryOperation(Type type, PREUNARY_OPERATORS op);
 	
 	// nullptr if no operation can be found
 	std::shared_ptr<Object> DoOperation(std::shared_ptr<Object> a, std::shared_ptr<Object> b, OPERATORS op);
+	std::shared_ptr<Object> DoOperation(std::shared_ptr<Object> a, POSTUNARY_OPERATORS op);
+	std::shared_ptr<Object> DoOperation(std::shared_ptr<Object> a, PREUNARY_OPERATORS op);
 	
 	std::shared_ptr<Object> __Num_Num_Add__(std::shared_ptr<Object> a,std::shared_ptr<Object> b);
 	std::shared_ptr<Object> __Num_Num_Sub__(std::shared_ptr<Object> a,std::shared_ptr<Object> b);
@@ -52,4 +65,13 @@ namespace Fuse {
 	std::shared_ptr<Object> __Num_Str_Add__(std::shared_ptr<Object> a,std::shared_ptr<Object> b);
 	std::shared_ptr<Object> __Str_Bool_Add__(std::shared_ptr<Object> a,std::shared_ptr<Object> b);
 	std::shared_ptr<Object> __Bool_Str_Add__(std::shared_ptr<Object> a,std::shared_ptr<Object> b);
+	
+	std::shared_ptr<Object> __Pre_Inc__(std::shared_ptr<Object> a);
+	std::shared_ptr<Object> __Pre_Dec__(std::shared_ptr<Object> a);
+	std::shared_ptr<Object> __Pre_Bool_Not__(std::shared_ptr<Object> a);
+	std::shared_ptr<Object> __Pre_Number_Not__(std::shared_ptr<Object> a);
+	std::shared_ptr<Object> __Pre_Number_Negate__(std::shared_ptr<Object> a);
+	
+	std::shared_ptr<Object> __Post_Inc__(std::shared_ptr<Object> a);
+	std::shared_ptr<Object> __Post_Dec__(std::shared_ptr<Object> a);
 }

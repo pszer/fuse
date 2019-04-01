@@ -16,11 +16,41 @@ Operation_Func Fuse::GetOperation(Type a, Type b, OPERATORS op) {
 	return nullptr;
 }
 
+UnaryOperation_Func Fuse::GetUnaryOperation(Type type, POSTUNARY_OPERATORS op) {
+	for (auto entry : Core.PostUnopOperations[(int)op]) {
+		if (entry.type == type) {
+			return entry.func;
+		}
+	}
+}
+
+UnaryOperation_Func Fuse::GetUnaryOperation(Type type, PREUNARY_OPERATORS op) {
+	for (auto entry : Core.PreUnopOperations[(int)op]) {
+		if (entry.type == type) {
+			return entry.func;
+		}
+	}
+}
+
 std::shared_ptr<Object> Fuse::DoOperation(std::shared_ptr<Object> a, std::shared_ptr<Object> b, OPERATORS op) {
 	auto func = GetOperation(a->GetType(), b->GetType(), op);
 	if (func == nullptr) return nullptr;
 	
 	return (*func)(a, b);
+}
+
+std::shared_ptr<Object> Fuse::DoOperation(std::shared_ptr<Object> a, POSTUNARY_OPERATORS op) {
+	auto func = GetUnaryOperation(a->GetType(), op);
+	if (func == nullptr) return nullptr;
+	
+	return (*func)(a);
+}
+
+std::shared_ptr<Object> Fuse::DoOperation(std::shared_ptr<Object> a, PREUNARY_OPERATORS op) {
+	auto func = GetUnaryOperation(a->GetType(), op);
+	if (func == nullptr) return nullptr;
+	
+	return (*func)(a);
 }
 
 std::shared_ptr<Object> Fuse::__Num_Num_Add__(std::shared_ptr<Object> a,std::shared_ptr<Object> b) {
@@ -257,6 +287,63 @@ std::shared_ptr<Object> Fuse::__Bool_Str_Add__(std::shared_ptr<Object> a,std::sh
 	return std::make_shared<String>(a->ToString() + b->ToString());
 }
 
+std::shared_ptr<Object> Fuse::__Pre_Inc__(std::shared_ptr<Object> a) {
+	if (GetNumber(a)->GetNum().type == INT) {
+		GetNumber(a)->GetNum().INT++;
+		return a;
+	} else {
+		GetNumber(a)->GetNum().DOUBLE += 1.0;
+		return a;
+	}
+}
+std::shared_ptr<Object> Fuse::__Pre_Dec__(std::shared_ptr<Object> a) {
+	if (GetNumber(a)->GetNum().type == INT) {
+		GetNumber(a)->GetNum().INT--;
+		return MakeNumber(GetNumber(a)->Int());
+	} else {
+		GetNumber(a)->GetNum().DOUBLE -= 1.0;
+		return MakeNumber(GetNumber(a)->GetNum().DOUBLE);
+	}
+}
+
+std::shared_ptr<Object> Fuse::__Pre_Bool_Not__(std::shared_ptr<Object> a) {
+	return MakeBool(!GetBool(a)->Value());
+}
+
+std::shared_ptr<Object> Fuse::__Pre_Number_Not__(std::shared_ptr<Object> a) {
+	return MakeBool(!a->IsTrue());
+}
+std::shared_ptr<Object> Fuse::__Pre_Number_Negate__(std::shared_ptr<Object> a) {
+	if (GetNumber(a)->GetNum().type == INT) {
+		return MakeNumber(-GetNumber(a)->GetNum().INT);
+	} else {
+		return MakeNumber(-GetNumber(a)->GetNum().DOUBLE);
+	}
+}
+	
+std::shared_ptr<Object> Fuse::__Post_Inc__(std::shared_ptr<Object> a) {
+	if (GetNumber(a)->GetNum().type == INT) {
+		long long _int = GetNumber(a)->GetNum().INT;
+		GetNumber(a)->GetNum().INT++;
+		return MakeNumber(_int);
+	} else {
+		double _double = GetNumber(a)->GetNum().DOUBLE;
+		GetNumber(a)->GetNum().DOUBLE += 1.0;
+		return MakeNumber(_double);
+	}
+}
+std::shared_ptr<Object> Fuse::__Post_Dec__(std::shared_ptr<Object> a) {
+	if (GetNumber(a)->GetNum().type == INT) {
+		auto _int = GetNumber(a)->GetNum().INT;
+		GetNumber(a)->GetNum().INT--;
+		return MakeNumber(_int);
+	} else {
+		auto _double = GetNumber(a)->GetNum().DOUBLE;
+		GetNumber(a)->GetNum().DOUBLE -= 1.0;
+		return MakeNumber(_double);
+	}
+}
+
 void Fuse::InitOperations() {
 	Core.Operations[OP_ADD] .push_back(Operation(TYPE_NUMBER, TYPE_NUMBER, __Num_Num_Add__));
 	Core.Operations[OP_SUB] .push_back(Operation(TYPE_NUMBER, TYPE_NUMBER, __Num_Num_Sub__));
@@ -285,4 +372,13 @@ void Fuse::InitOperations() {
 	Core.Operations[OP_ADD].push_back(Operation(TYPE_NUMBER, TYPE_STRING, __Num_Str_Add__));
 	Core.Operations[OP_ADD].push_back(Operation(TYPE_STRING, TYPE_BOOL, __Str_Bool_Add__));
 	Core.Operations[OP_ADD].push_back(Operation(TYPE_BOOL, TYPE_STRING, __Bool_Str_Add__));
+	
+	Core.PreUnopOperations[PRE_OP_INC].push_back(UnaryOperation(TYPE_NUMBER, __Pre_Inc__));
+	Core.PreUnopOperations[PRE_OP_DEC].push_back(UnaryOperation(TYPE_NUMBER, __Pre_Dec__));
+	Core.PreUnopOperations[PRE_OP_NOT].push_back(UnaryOperation(TYPE_NUMBER, __Pre_Number_Not__));
+	Core.PreUnopOperations[PRE_OP_NOT].push_back(UnaryOperation(TYPE_BOOL, __Pre_Bool_Not__));
+	Core.PreUnopOperations[PRE_OP_NEGATE].push_back(UnaryOperation(TYPE_NUMBER, __Pre_Number_Negate__));
+	
+	Core.PostUnopOperations[POST_OP_INC].push_back(UnaryOperation(TYPE_NUMBER, __Post_Inc__));
+	Core.PostUnopOperations[POST_OP_DEC].push_back(UnaryOperation(TYPE_NUMBER, __Post_Dec__));
 }
