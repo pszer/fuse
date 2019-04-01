@@ -28,6 +28,10 @@ namespace Fuse {
 		   0 for error */
 		int Erase(std::size_t index);
 		int Erase(const std::string& key);
+		void Clear();
+		
+		std::shared_ptr<Fuse::Object> Push(std::shared_ptr<Fuse::Object> obj);
+		std::shared_ptr<Fuse::Object> Pop();
 		
 		void AddEntry(std::shared_ptr<Object>);
 		void AddKey(std::shared_ptr<Object>, const std::string& key);

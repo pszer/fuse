@@ -8,6 +8,10 @@ void Print(std::shared_ptr<Fuse::Object>);
 int main(int argc, char** argv) {
 	std::cout << "Fuse test interpreter\nReady." << std::endl;
 	
+	Fuse::Core.IO_Library();
+	Fuse::Core.Math_Library();
+	Fuse::Core.Table_Library();
+	
 	Fuse::Core.SetOut(&std::cerr, "> ");
 	Fuse::Core.SetReader(&std::cin);
 	Fuse::Core.SetConsoleInput(&std::cin);

@@ -13,6 +13,7 @@
 
 #include "std/io.hpp"
 #include "std/math.hpp"
+#include "std/table.hpp"
 
 using Scope = std::map<std::string, std::shared_ptr<Fuse::Object> >;
 
@@ -45,6 +46,7 @@ namespace Fuse {
 
 		void IO_Library();
 		void Math_Library();
+		void Table_Library();
 		
 		bool Error();
 		std::string GetErrorMessage();

@@ -21,8 +21,6 @@ std::shared_ptr<Object> Fuse::NullReturn() {
 
 Core::Core(): _Parser( Parser(&_Lexer) ) {
 	InitOperations();
-	IO_Library();
-	Math_Library();
 }
 
 int Core::SetReader(std::istream* _stream) {
@@ -119,6 +117,24 @@ void Core::Math_Library() {
 	
 	math_table->AddKey(MakeCFunc(_mathCeiling, {TYPE_NUMBER}), "Ceiling");
 	math_table->AddKey(MakeCFunc(_mathFloor, {TYPE_NUMBER}), "Floor");
+}
+
+void Core::Table_Library() {
+	auto table = CreateVariable("table", MakeTable());
+	auto table_table = GetTable(table);
+	
+	table_table->AddKey(MakeCFunc(_tableAt, {TYPE_TABLE, TYPE_NUMBER}), "At");
+	table_table->AddKey(MakeCFunc(_tableInsert, {TYPE_TABLE, TYPE_NUMBER, TYPE_OBJECT}), "Insert");
+	table_table->AddKey(MakeCFunc(_tableMap, {TYPE_TABLE, TYPE_STRING, TYPE_OBJECT}), "Map");
+	table_table->AddKey(MakeCFunc(_tableDelete, {TYPE_TABLE, TYPE_NUMBER}), "Delete");
+	table_table->AddKey(MakeCFunc(_tableErase, {TYPE_TABLE, TYPE_STRING}), "Erase");
+	table_table->AddKey(MakeCFunc(_tableSize, {TYPE_TABLE}), "Size");
+	table_table->AddKey(MakeCFunc(_tableEmpty, {TYPE_TABLE}), "Empty");
+	table_table->AddKey(MakeCFunc(_tableClear, {TYPE_TABLE}), "Clear");
+	table_table->AddKey(MakeCFunc(_tablePush, {TYPE_TABLE, TYPE_OBJECT}), "Push");
+	table_table->AddKey(MakeCFunc(_tablePop, {TYPE_TABLE}), "Pop");
+	table_table->AddKey(MakeCFunc(_tableFirst, {TYPE_TABLE}), "First");
+	table_table->AddKey(MakeCFunc(_tableLast, {TYPE_TABLE}), "Last");
 }
 
 Scope& Core::TopScope() {

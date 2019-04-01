@@ -101,6 +101,31 @@ int Fuse::Table::Erase(const std::string& key) {
 	return 1;
 }
 
+void Fuse::Table::Clear() {
+	data.clear();
+	dict.clear();
+}
+
+std::shared_ptr<Fuse::Object> Fuse::Table::Push(std::shared_ptr<Fuse::Object> obj) {
+	auto d = std::make_shared<std::shared_ptr<Object>>(obj);
+	data.push_back(d);
+	return *d;
+}
+
+std::shared_ptr<Fuse::Object> Fuse::Table::Pop() {
+	if (data.empty()) return nullptr;
+	auto obj = *data.front();
+	data.pop_back();
+	
+	for (auto key = dict.begin(); key != dict.end(); ++key) {
+		if (*(key->second) == obj) {
+			dict.erase(key);
+		}
+	}
+	
+	return obj;
+}
+
 std::shared_ptr<Object> Fuse::Table::Clone() {
 	auto t = std::make_shared<Table>();
 	

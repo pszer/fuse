@@ -379,6 +379,29 @@ std::unique_ptr<ExprAST> Parser::ParseFor() {
 	
 	assign = ParseStrictExpression();
 	if (assign == nullptr) return nullptr;
+	
+	// FOR TABLE
+	if (GetCurrentToken() == TOK_IN) {
+		std::string var_name;
+		auto var = dynamic_cast<VariableAST*>(assign.get());
+		if (var == nullptr)
+			return StatLogError("Expected variable name in table-for loop");
+		var_name = var->GetIdentifier();
+		
+		GetNextToken();
+		
+		auto table = ParseStrictExpression();
+		if (table == nullptr) return nullptr;
+		
+		if (GetCurrentToken() != ')')
+			return StatLogError("Expected ')' at the end of a for statement definition");
+		GetNextToken(); // eat ')'
+		
+		body = ParseExpression();
+		if (body == nullptr) return nullptr;
+		return std::make_unique<ForTableAST>(var_name, std::move(table), std::move(body));
+	}
+	
 	GetNextToken();
 	
 	cond = ParseStrictExpression();
@@ -393,6 +416,7 @@ std::unique_ptr<ExprAST> Parser::ParseFor() {
 	GetNextToken(); // eat ')'
 	
 	body = ParseExpression();
+	if (body == nullptr) return nullptr;
 	return std::make_unique<ForAST>(std::move(assign), std::move(cond), std::move(step), std::move(body));
 }
 

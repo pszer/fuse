@@ -1,6 +1,5 @@
 #pragma once
 
-#include <memory>
 #include "Fuse_Funcs.hpp"
 
 namespace Fuse {
