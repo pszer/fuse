@@ -158,6 +158,15 @@ std::shared_ptr<std::vector<Scope>> Core::EnterScope(std::shared_ptr<std::vector
 	return old_scope;
 }
 
+void Core::StepScopeUp() {
+	if (LocalScope)
+		LocalScope->emplace_back();
+}
+void Core::StepScoreDown() {
+	if (LocalScope && !LocalScope->empty())
+		LocalScope->pop_back();
+}
+
 std::shared_ptr<Fuse::Object> Core::GetVariable(const std::string& var_name) {
 	if (LocalScope) {
 		for (size_t i = LocalScope->size() - 1;; --i) {

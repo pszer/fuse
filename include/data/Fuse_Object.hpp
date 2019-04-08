@@ -49,12 +49,14 @@ namespace Fuse {
 	
 	enum Sig : char {
 		SIG_BREAK,
-		SIG_CONTINUE
+		SIG_CONTINUE,
+		SIG_RETURN
 	};
 	
 	class Signal : public Object {
 	public:
 		Signal(Sig _s): SIGNAL(_s) { ; }
+		Signal(Sig _s, std::shared_ptr<Object> obj): SIGNAL(_s), Held(obj) { ; }
 	
 		std::shared_ptr<Object> Clone();
 		std::string ToString();
@@ -62,6 +64,8 @@ namespace Fuse {
 		Type GetType();
 		bool IsTrue();
 		Sig SIGNAL;
+		
+		std::shared_ptr<Object> Held = nullptr;
 	};
 
 };

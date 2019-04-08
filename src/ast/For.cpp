@@ -19,7 +19,7 @@ std::shared_ptr<Fuse::Object> Fuse::ForAST::Eval() {
 		
 		std::shared_ptr<Object> obj;
 		if (body != nullptr) {
-			obj = body->Eval();
+			auto obj = ScopedEval(body);
 			if (obj == nullptr) return nullptr;
 			
 			if (obj->GetType() == TYPE_SIGNAL) {
@@ -56,7 +56,7 @@ std::shared_ptr<Fuse::Object> Fuse::ForTableAST::Eval() {
 		Core.CreateVariable(var_name, table->Access(i));
 		
 		if (body != nullptr) {
-			auto obj = body->Eval();
+			auto obj = ScopedEval(body);
 			if (obj == nullptr) return nullptr;
 			
 			if (obj->GetType() == TYPE_SIGNAL) {

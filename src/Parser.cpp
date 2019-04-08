@@ -63,7 +63,7 @@ std::unique_ptr<ExprAST> Parser::ParseExpression() {
 }
 
 std::unique_ptr<ExprAST> Parser::ParseStrictExpression() {
-		//std::cout << "parsing expr" << std::endl;
+	//std::cout << "parsing expr" << std::endl;
 	auto LHS = ParseStrictExprPrimary();
 	if (!LHS) return nullptr;
 	

@@ -55,6 +55,8 @@ namespace Fuse {
 		// Enter a new scope, returns old scope
 		std::shared_ptr<std::vector<Scope>> EnterScope();
 		std::shared_ptr<std::vector<Scope>> EnterScope(std::shared_ptr<std::vector<Scope>> new_scope);
+		void StepScopeUp();
+		void StepScoreDown();
 		
 		std::vector<Operation> Operations[OP_COUNT];
 		std::vector<UnaryOperation> PreUnopOperations[PREUNARY_OP_COUNT];

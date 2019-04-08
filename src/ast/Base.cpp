@@ -3,6 +3,16 @@
 
 using namespace Fuse;
 
+std::shared_ptr<Fuse::Object> Fuse::ScopedEval(std::unique_ptr<ExprAST>& ast) {
+	if (!ast) return nullptr;
+	
+	Core.StepScopeUp();
+	auto result = ast->Eval();
+	Core.StepScoreDown();
+	
+	return result;
+}
+
 const std::vector<std::string>& FunctionAST::GetArgs() {
 	return Args;
 }
@@ -38,6 +48,8 @@ std::shared_ptr<Fuse::Object> FunctionAST::CallFuseFunc(std::vector< std::shared
 	
 	if (Body == nullptr) return nullptr;
 	auto body_eval = Body->Eval();
+	if (body_eval->GetType() == TYPE_SIGNAL)
+		body_eval = dynamic_cast<Signal*>(body_eval.get())->Held;
 	
 	Core.EnterScope(old_scope);
 	return body_eval;

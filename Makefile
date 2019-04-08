@@ -17,22 +17,14 @@ DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 _OBJ = main.o Fuse_Core.o Fuse_Funcs.o Lexer.o Parser.o Operations.o ast/Base.o ast/Literals.o ast/Block.o ast/FuncDef.o ast/Object.o ast/Variable.o ast/BinaryExpr.o \
 ast/Assign.o ast/FuncCall.o ast/IfElse.o data/Fuse_Object.o data/Fuse_Table.o data/Fuse_Number.o data/Fuse_String.o data/Fuse_Bool.o data/Fuse_Function.o \
 ast/TableConstructor.o ast/TableAccess.o ast/While.o ast/For.o ast/Break.o std/io.o std/math.o std/table.o
-_LIB_OBJ = Fuse_Core.o Fuse_Funcs.o Lexer.o Parser.o Operations.o ast/Base.o ast/Literals.o ast/Block.o ast/FuncDef.o ast/Object.o ast/Variable.o ast/BinaryExpr.o \
-ast/Assign.o ast/FuncCall.o ast/IfElse.o data/Fuse_Object.o data/Fuse_Table.o data/Fuse_Number.o data/Fuse_String.o data/Fuse_Bool.o data/Fuse_Function.o \
-ast/TableConstructor.o ast/TableAccess.o ast/While.o ast/For.o ast/Break.o std/io.o std/math.o std/table.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
-LIB_OBJ = $(patsubst %,$(ODIR)/%,$(_LIB_OBJ))
 
 OUTPUT = fuse-test
-LIB_OUTPUT = libfuse.a
 
 $(ODIR)/%.o: $(SDIR)/%.cpp $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 make: $(OBJ)
 	$(CC) -o $(OUTPUT) $^ $(CFLAGS) $(LIBS)
-
-makelib: $(LIB_OBJ)
-	ar rcs $(LIB_OUTPUT) $^
 		
 debug: $(OBJ)
 	$(CC) -g -o $(OUTPUT) $^ $(CFLAGS) $(LIBS) 

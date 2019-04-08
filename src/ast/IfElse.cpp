@@ -19,10 +19,10 @@ std::shared_ptr<Fuse::Object> Fuse::IfElseAST::Eval() {
 	if (cond_eval == nullptr) return nullptr;
 	
 	if (cond_eval->IsTrue()) {
-		return body->Eval();
+		return ScopedEval(body);
 	} else {
 		if (else_body != nullptr)
-			return else_body->Eval();
+			return ScopedEval(else_body);
 		return NullReturn();
 	}
 }

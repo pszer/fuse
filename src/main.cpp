@@ -25,7 +25,10 @@ int main(int argc, char** argv) {
 void Print(std::shared_ptr<Fuse::Object> obj) {
 	if (obj != nullptr && obj->GetType() != Fuse::TYPE_NULL) {
 		std::string str = obj->ToString();
-		if (str == "") return;
+		if (str == "") {
+			std::cout << std::endl;
+			return;
+		}
 		std::cout << obj->ToString() << std::endl;
 	}
 }

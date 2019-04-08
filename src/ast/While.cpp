@@ -8,7 +8,7 @@ std::shared_ptr<Fuse::Object> Fuse::WhileAST::Eval() {
 		auto cond_eval = cond->Eval();
 		if (cond_eval == nullptr || !cond_eval->IsTrue()) return nullptr;
 		
-		auto obj = body->Eval();
+		auto obj = ScopedEval(body);
 		if (obj == nullptr) return nullptr;
 		
 		if (obj->GetType() == TYPE_SIGNAL) {

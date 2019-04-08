@@ -110,7 +110,9 @@ namespace Fuse {
 
 		virtual TypeAST GetType() = 0;
 	};
-		
+	
+	std::shared_ptr<Fuse::Object> ScopedEval(std::unique_ptr<ExprAST>& ast);
+	
 	class FunctionAST {
 	public:
 		FunctionAST(const std::vector<std::string>& _args, std::unique_ptr<ExprAST> _body):
